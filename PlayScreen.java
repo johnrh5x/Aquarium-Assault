@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 
+import john.aquariumassault.actors.TextureActor;
 import john.aquariumassault.actors.Nate;
 import john.aquariumassault.actors.Patron;
 
@@ -33,15 +34,23 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		/* Create a stage to hold the actors and center the camera in
 		 * the middle of the stage. */
 		
-		stage = new Stage(new FitViewport(GRID_ROWS*GRID_STEP,GRID_COLUMNS*GRID_STEP));		
+		stage = new Stage(new FitViewport(GRID_COLUMNS*GRID_STEP,GRID_ROWS*GRID_STEP));		
 		stage.getCamera().position.x = GRID_COLUMNS*GRID_STEP/2;
 		stage.getCamera().position.y = GRID_ROWS*GRID_STEP/2;
 		stage.getCamera().update();
 		
+		/* Create a background for the stage */
+		
+		TextureActor background = new TextureActor(textures[BACKGROUND]);
+		background.setX(0);
+		background.setY(0);
+		background.setSize(GRID_COLUMNS*GRID_STEP,GRID_ROWS*GRID_STEP);
+		stage.addActor(background);
+		
 		/* Create Nate */
 		
 		nate = new Nate(textures[NATE]);
-		nate.setGridPosition(5,5);
+		nate.setGridPosition(7,5);
 		stage.addActor(nate);
 		stage.setKeyboardFocus(nate);
 		
@@ -72,6 +81,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 
 		// Game logic
 		
+		Patron.setNatePosition(nate);
 		stage.act(delta);
 		elapsedTime += delta;
 		if (elapsedTime > newPatronInterval) {
@@ -90,21 +100,13 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 			elapsedTime = 0f;
 			
 		}
-		for (Patron p: patrons) {
-
-			/* If Nate is next to a descending patron, note that the
-			 * patron has been intercepted. */
-			
-			if (p.isDescending()) p.setIntercepted(p.isAdjacentTo(nate));			
 		
-		}
-		
-        // Clear screen (white)
+        // Clear screen (black)
         
-        Gdx.gl.glClearColor(1,1,1,1);
+        Gdx.gl.glClearColor(0,0,0,0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
-        // Actual rendering
+        // Draw game objects
         
         stage.draw();
 		

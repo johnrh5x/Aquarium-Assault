@@ -55,6 +55,7 @@ public class Patron extends TextureActor {
 	private static int         turnWait = 4;      // Number of turns to spend in the waiting phase
 	private static float       tapProb = 0.125f;  // Chance per turn of transitioning from DEFAULT to TAPPING
 	private static RandomXS128 rng;
+	private static int         nateRow, nateColumn, fishRow, fishColumn;
 	private        Phase       phase;
 	private        State       state;
 	private        float       elapsedTime;
@@ -83,6 +84,8 @@ public class Patron extends TextureActor {
 	@Override
 	public void act(float delta) {
 		
+		/* At the start of a new turn, act. */
+		
 		elapsedTime += delta;
 		if (elapsedTime > turnLength) {
 			switch (phase) {
@@ -92,6 +95,18 @@ public class Patron extends TextureActor {
 			}
 			elapsedTime = 0f;
 		}
+		
+		/* If the patron isn't EXITING and hasn't been INTERCEPTED yet,
+		 * check to see if the Patron is next to Nate.  If so, change
+		 * the patron's state to INTERCEPTED. */
+		 
+		if (phase != Phase.EXITING && state != State.INTERCEPTED) {
+			if (isAdjacentTo(nateRow,nateColumn)) {
+				state = State.INTERCEPTED;
+				setColor(State.INTERCEPTED.color());
+			}
+		}
+		
 	}
 	
 	public void descend() {
@@ -105,7 +120,7 @@ public class Patron extends TextureActor {
 			 * to the waiting phase. */
 			 
 			moveDown();
-			if (getRow() == 0) {
+			if (getRow() == EXIT_ROW) {
 				phase = Phase.WAITING;
 				emptyColumn[c] = false;
 			}
@@ -140,8 +155,13 @@ public class Patron extends TextureActor {
 			} else {
 				if (c - left > right - c) {
 					moveRight();
-				} else {
+				} else if (c - left > right - c) {
 					moveLeft();
+				} else {
+					switch (rng.nextInt(1)) {
+						case 0:  moveLeft();  break;
+						default: moveRight(); break;
+					}
 				}
 			}
 		}
@@ -153,11 +173,13 @@ public class Patron extends TextureActor {
 		/* An exiting patron moves toward the left or right side of the
 		 * screen, whichever is closer.  A patron who has left the grid
 		 * should be removed from the stage. */
-		 
+		
+		//System.out.println("Patron (" + toString() + ") is in column " + getColumn() + ".");
 		int c = getColumn();
 		if (c == 0 || c == GRID_COLUMNS - 1) {
 			remove();
 			phase = Phase.OFFSTAGE;
+			//System.out.println("Patron (" + toString() + ") is offstage.");
 		} else if (c - 1 < GRID_COLUMNS - c) {
 			moveLeft();
 		} else {
@@ -167,14 +189,6 @@ public class Patron extends TextureActor {
 	}
 	
 	public boolean isDescending() {return phase == Phase.DESCENDING;}
-
-	public boolean isAdjacentTo(TextureActor actor) {
-		
-		int dx = getColumn() - actor.getColumn();
-		int dy = getRow() - actor.getRow();
-		return dx*dx + dy*dy <= 1;
-		
-	}
 
 	public boolean isOffstage() {return phase == Phase.OFFSTAGE;}
 	
@@ -198,6 +212,20 @@ public class Patron extends TextureActor {
 		
 	}
 
+	public void setFishPosition(TextureActor fish) {
+		
+		fishRow = fish.getRow();
+		fishColumn = fish.getColumn();
+		
+	}
+
+	public static void setNatePosition(TextureActor nate) {
+		
+		nateRow = nate.getRow();
+		nateColumn = nate.getColumn();
+		
+	}
+
 	public void waitByTank() {
 		
 		/* Increment the number of turns the patron has spent waiting */
@@ -218,6 +246,7 @@ public class Patron extends TextureActor {
 		 * to the exiting phase. */
 		
 		if (turnCounter == turnWait) {
+			//System.out.println("Patron (" + toString() + ") is exiting now.");
 			phase = Phase.EXITING;
 			Color c = getColor();
 			setColor(c.r, c.g, c.b, 0.5f); // Make exiting patrons semi-transparent to distinguish them from waiting patrons

@@ -15,10 +15,11 @@ public class AquariumAssault extends Game implements Constants {
 	@Override
 	public void create () {
 
-		textures = new Texture[3];
+		textures = new Texture[4];
 		textures[NATE] = new Texture(Gdx.files.internal("Nate.png"));
 		textures[MATTHEW] = new Texture(Gdx.files.internal("Matthew.jpg"));
 		textures[ALICE] = new Texture(Gdx.files.internal("Alice.png"));
+		textures[BACKGROUND] = new Texture(Gdx.files.internal("background.png"));
 		setScreen(new PlayScreen(textures));
 
 	}

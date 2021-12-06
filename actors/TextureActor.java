@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import john.aquariumassault.Constants;
 
-public abstract class TextureActor extends Actor implements Constants {
+public class TextureActor extends Actor implements Constants {
 	
 	// Fields
 	
@@ -40,6 +40,22 @@ public abstract class TextureActor extends Actor implements Constants {
 	public int getRow() {return row;}
 	
 	public int getColumn() {return column;}
+
+	public boolean isAdjacentTo(TextureActor actor) {
+		
+		int dx = getColumn() - actor.getColumn();
+		int dy = getRow() - actor.getRow();
+		return dx*dx + dy*dy <= 1;
+		
+	}
+
+	public boolean isAdjacentTo(int row, int column) {
+		
+		int dx = this.row - row;
+		int dy = this.column - column;
+		return dx*dx + dy*dy <= 1;
+		
+	}
 
 	public void moveDown() {
 		

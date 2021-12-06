@@ -32,6 +32,8 @@ public class Nate extends TextureActor {
 					case Keys.DOWN:  moveDown();  break;
 					case Keys.RIGHT: moveRight(); break;
 				}
+				System.out.println("Nate is in row " + getRow() + " and column " + getColumn() + ".");
+				System.out.println("His position is (" + getX() + "," + getY() + ") in a " + getStage().getWidth() + "x" + getStage().getWidth() + " world.");
 				return true;
 			}
 		});
