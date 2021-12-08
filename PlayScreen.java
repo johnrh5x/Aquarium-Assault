@@ -95,6 +95,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		// Game logic
 		
 		Patron.setNatePosition(nate);
+		Patron.setFishPosition(dogfish);
 		stage.act(delta);
 		elapsedTime += delta;
 		if (elapsedTime > newPatronInterval) {

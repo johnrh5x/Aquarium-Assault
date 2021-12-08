@@ -107,6 +107,19 @@ public class Patron extends TextureActor {
 			}
 		}
 		
+		/* If the patron WAITING, check to see if the patron is next to 
+		 * the dogfish.  If so, change the patron's state to 
+		 * EXITING. */
+		 
+		if (phase == Phase.WAITING) {
+			if (isAdjacentTo(fishRow,fishColumn)) {
+				phase = Phase.EXITING;
+				Color c = getColor();
+				setColor(c.r, c.g, c.b, 0.5f*c.a);
+				emptyColumn[getColumn()] = true;
+			}			
+		}
+		
 	}
 	
 	public void descend() {
@@ -212,7 +225,7 @@ public class Patron extends TextureActor {
 		
 	}
 
-	public void setFishPosition(TextureActor fish) {
+	public static void setFishPosition(TextureActor fish) {
 		
 		fishRow = fish.getRow();
 		fishColumn = fish.getColumn();
@@ -228,9 +241,6 @@ public class Patron extends TextureActor {
 
 	public void waitByTank() {
 		
-		/* Increment the number of turns the patron has spent waiting */
-		
-		turnCounter++;
 		
 		/* A player in the DEFAULT state may transition to the TAPPING
 		 * state. */
@@ -240,17 +250,6 @@ public class Patron extends TextureActor {
 				state = State.TAPPING;
 				setColor(State.TAPPING.color());
 			}
-		}		
-		
-		/* If the patron has hit the maximum number of turns, transition
-		 * to the exiting phase. */
-		
-		if (turnCounter == turnWait) {
-			//System.out.println("Patron (" + toString() + ") is exiting now.");
-			phase = Phase.EXITING;
-			Color c = getColor();
-			setColor(c.r, c.g, c.b, 0.5f); // Make exiting patrons semi-transparent to distinguish them from waiting patrons
-			emptyColumn[getColumn()] = true;
 		}
 		
 	}
