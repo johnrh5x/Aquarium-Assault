@@ -32,8 +32,6 @@ public class Nate extends TextureActor {
 					case Keys.DOWN:  moveDown();  break;
 					case Keys.RIGHT: moveRight(); break;
 				}
-				System.out.println("Nate is in row " + getRow() + " and column " + getColumn() + ".");
-				System.out.println("His position is (" + getX() + "," + getY() + ") in a " + getStage().getWidth() + "x" + getStage().getWidth() + " world.");
 				return true;
 			}
 		});
@@ -41,5 +39,16 @@ public class Nate extends TextureActor {
 	}
 	
 	// Methods
+
+	@Override
+	public void moveDown() {
+		
+		/* Modified from the TextureActor version in order to prevent 
+		 * Nate from walking into the fish tank. */
+		
+		int r = getRow();
+		if (r > EXIT_ROW) setRow(r - 1);
+		
+	}
 
 }

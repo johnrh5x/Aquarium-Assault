@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 
+import john.aquariumassault.actors.Dogfish;
 import john.aquariumassault.actors.TextureActor;
 import john.aquariumassault.actors.Nate;
 import john.aquariumassault.actors.Patron;
@@ -20,6 +21,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	private Texture[]     textures;
 	private Stage         stage;
 	private Nate          nate;
+	private Dogfish       dogfish;
 	private int           numberOfPatrons;
 	private Array<Patron> patrons;
 	private float         elapsedTime;
@@ -42,10 +44,21 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		/* Create a background for the stage */
 		
 		TextureActor background = new TextureActor(textures[BACKGROUND]);
-		background.setX(0);
-		background.setY(0);
+		background.setPosition(0,0);
 		background.setSize(GRID_COLUMNS*GRID_STEP,GRID_ROWS*GRID_STEP);
 		stage.addActor(background);
+		
+		/* Create a fishtank for the stage */
+		
+		TextureActor fishtank = new TextureActor(textures[FISHTANK]);
+		fishtank.setPosition(0,0);
+		fishtank.setSize(GRID_COLUMNS*GRID_STEP,EXIT_ROW*GRID_STEP);
+		stage.addActor(fishtank);
+		
+		/* Create a dogfish */
+		
+		dogfish = new Dogfish(textures[DOGFISH]);
+		stage.addActor(dogfish);
 		
 		/* Create Nate */
 		
@@ -56,7 +69,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		
 		/* Create patrons */
 		
-		numberOfPatrons = 10;
+		numberOfPatrons = GRID_COLUMNS;
 		patrons = new Array<Patron>(numberOfPatrons);
 		for (int i = 0; i < numberOfPatrons; i++) patrons.add(new Patron(textures[ALICE]));
 		

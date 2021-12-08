@@ -40,6 +40,8 @@ public class TextureActor extends Actor implements Constants {
 	public int getRow() {return row;}
 	
 	public int getColumn() {return column;}
+	
+	public Texture getTexture() {return texture;}
 
 	public boolean isAdjacentTo(TextureActor actor) {
 		
@@ -119,5 +121,9 @@ public class TextureActor extends Actor implements Constants {
 	}
 	
 	public void setTexture(Texture texture) {this.texture = texture;}
+	
+	public int textureHeight() {return texture.getHeight();}
+	
+	public int textureWidth() {return texture.getWidth();}
 	
 }
