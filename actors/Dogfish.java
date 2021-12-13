@@ -21,18 +21,21 @@ public class Dogfish extends TextureActor {
 		
 	}
 	
-	
 	// Methods
 	
 	@Override
 	public void act(float delta) {
+		
+		/* When left to its own devices (i.e., if swimming == true) the 
+		 * dogfish swims around the tank in a counter-clockwise 
+		 * fashion. */
 		
 		elapsedTime += delta;
 		if (elapsedTime > turnLength) {
 			switch (getRow()) {
 				case 0:
 					switch (getColumn()) {
-						case GRID_COLUMNS - 1: moveUp();   break;
+						case GRID_COLUMNS - 1: moveUp();    break;
 						default:               moveRight(); break;
 					}
 					break;
@@ -56,17 +59,17 @@ public class Dogfish extends TextureActor {
 	@Override
 	public void draw(Batch batch, float parentAlpha) {
 		
-		batch.draw(getTexture(),
-		           getX(),
-		           getY(),
-		           getWidth(),
-		           getHeight(),
-		           0,
-		           0,
-		           textureWidth(),
-		           textureHeight(),
+		batch.draw(getTexture(),    // Texture to draw
+		           getX(),          // X-coordinate of actor (world coordinates)
+		           getY(),          // Y-coordinate of actor (world coordinates)
+		           getWidth(),      // Actor width (world coordinates)
+		           getHeight(),     // Actor height (world coordinates)
+		           0,               // X-coordinate of the lower-left corner of the rectangle to draw (pixels)
+		           0,               // Y-coordinate of the lower-left corner of the rectangle to draw (pixels)
+		           textureWidth(),  // Width of rectangle to draw (pixels)
+		           textureHeight(), // Height of rectangle to draw (pixels)
 		           getRow() == 0,   // Flip texture horizontally if the dogfish is in the bottom row
-		           false);
+		           false);          // Do not flip vertically
 		
 	}
 

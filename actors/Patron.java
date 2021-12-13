@@ -28,6 +28,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.RandomXS128;
 import com.badlogic.gdx.utils.Array;
 
+import java.util.ArrayList;
+
+import john.aquariumassault.ScoreEvent;
+
 public class Patron extends TextureActor {
 
 	// Enumerations
@@ -50,16 +54,17 @@ public class Patron extends TextureActor {
 
 	// Fields
 	
-	private static boolean[]   emptyColumn;
-	private static float       turnLength = 0.5f; // Two turns per second
-	private static int         turnWait = 4;      // Number of turns to spend in the waiting phase
-	private static float       tapProb = 0.125f;  // Chance per turn of transitioning from DEFAULT to TAPPING
-	private static RandomXS128 rng;
-	private static int         nateRow, nateColumn, fishRow, fishColumn;
-	private        Phase       phase;
-	private        State       state;
-	private        float       elapsedTime;
-	private        int         turnCounter;
+	private static boolean[]             emptyColumn;
+	private static float                 turnLength = 0.5f; // Two turns per second
+	private static int                   turnWait = 4;      // Number of turns to spend in the waiting phase
+	private static float                 tapProb = 0.125f;  // Chance per turn of transitioning from DEFAULT to TAPPING
+	private static RandomXS128           rng;
+	private static int                   nateRow, nateColumn, fishRow, fishColumn;
+	private        Phase                 phase;
+	private        State                 state;
+	private        float                 elapsedTime;
+	private        int                   turnCounter;
+	private        ArrayList<ScoreEvent> events;
 	
 	// Constructor(s)
 	
@@ -76,6 +81,7 @@ public class Patron extends TextureActor {
 			emptyColumn = new boolean[GRID_COLUMNS];
 			for (int i = 0; i < emptyColumn.length; i++) emptyColumn[i] = true;
 		}
+		events = new ArrayList<ScoreEvent>();
 		
 	}
 	
@@ -94,6 +100,7 @@ public class Patron extends TextureActor {
 				case EXITING:    exit();       break;
 			}
 			elapsedTime = 0f;
+			
 		}
 		
 		/* If the patron isn't EXITING and hasn't been INTERCEPTED yet,
@@ -104,6 +111,7 @@ public class Patron extends TextureActor {
 			if (isAdjacentTo(nateRow,nateColumn)) {
 				state = State.INTERCEPTED;
 				setColor(State.INTERCEPTED.color());
+				events.add(new ScoreEvent(100));
 			}
 		}
 		
@@ -187,12 +195,10 @@ public class Patron extends TextureActor {
 		 * screen, whichever is closer.  A patron who has left the grid
 		 * should be removed from the stage. */
 		
-		//System.out.println("Patron (" + toString() + ") is in column " + getColumn() + ".");
 		int c = getColumn();
 		if (c == 0 || c == GRID_COLUMNS - 1) {
 			remove();
 			phase = Phase.OFFSTAGE;
-			//System.out.println("Patron (" + toString() + ") is offstage.");
 		} else if (c - 1 < GRID_COLUMNS - c) {
 			moveLeft();
 		} else {
@@ -200,11 +206,28 @@ public class Patron extends TextureActor {
 		}
 		
 	}
+
+	public int incrementScore() {
+		
+		/* This method returns the total of the points associated with 
+		 * each ScoreEvent the patron has accumulated and removes
+		 * all ScoreEvents from the events array. */
+		
+		int total = 0;
+		if (events.size() > 0) {
+			for (int i = events.size() - 1; i >= 0; i--) {
+				total += events.get(i).points();
+				events.remove(i);
+			}
+		}
+		return total;
+		
+	}
 	
 	public boolean isDescending() {return phase == Phase.DESCENDING;}
 
 	public boolean isOffstage() {return phase == Phase.OFFSTAGE;}
-	
+
 	public void reset() {
 		
 		setGridPosition(GRID_ROWS - 1, rng.nextInt(GRID_COLUMNS));
@@ -241,15 +264,25 @@ public class Patron extends TextureActor {
 
 	public void waitByTank() {
 		
-		
-		/* A player in the DEFAULT state may transition to the TAPPING
-		 * state. */
-		 
-		if (state == State.DEFAULT) {
-			if (rng.nextFloat() < tapProb) {
-				state = State.TAPPING;
-				setColor(State.TAPPING.color());
-			}
+		switch (state) {
+			
+			case TAPPING:
+			
+				/* Add a new score event. */
+				
+				events.add(new ScoreEvent(-200));
+				break;
+				
+			case DEFAULT:
+			
+				/* Chance of transitioning to TAPPING state. */
+				
+				if (rng.nextFloat() < tapProb) {
+					state = State.TAPPING;
+					setColor(State.TAPPING.color());
+				}
+				break;
+				
 		}
 		
 	}
