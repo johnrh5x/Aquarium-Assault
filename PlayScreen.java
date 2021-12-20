@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -13,6 +14,7 @@ import john.aquariumassault.actors.Dogfish;
 import john.aquariumassault.actors.TextureActor;
 import john.aquariumassault.actors.Nate;
 import john.aquariumassault.actors.Patron;
+import john.aquariumassault.actors.TextActor;
 
 public class PlayScreen extends ScreenAdapter implements Constants {
 
@@ -26,19 +28,21 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	private Array<Patron> patrons;
 	private float         elapsedTime;
 	private float         newPatronInterval;
+	private int           score;
+	private TextActor     scoreKeeper;
 	
 	// Constructor(s)
 	
-	public PlayScreen(Texture[] textures) {
+	public PlayScreen(Texture[] textures, BitmapFont font) {
 		
 		this.textures = textures;
 		
 		/* Create a stage to hold the actors and center the camera in
 		 * the middle of the stage. */
 		
-		stage = new Stage(new FitViewport(GRID_COLUMNS*GRID_STEP,GRID_ROWS*GRID_STEP));		
-		stage.getCamera().position.x = GRID_COLUMNS*GRID_STEP/2;
-		stage.getCamera().position.y = GRID_ROWS*GRID_STEP/2;
+		stage = new Stage(new FitViewport(WORLD_WIDTH,WORLD_HEIGHT));		
+		stage.getCamera().position.x = WORLD_WIDTH/2;
+		stage.getCamera().position.y = WORLD_HEIGHT/2;
 		stage.getCamera().update();
 		
 		/* Create a background for the stage */
@@ -78,16 +82,22 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		newPatronInterval = 2f;
 		elapsedTime = newPatronInterval;
 		
+		/* Initialize the score */
+		
+		score = 0;
+		
+		/* Create an actor to show the score */
+		
+		scoreKeeper = new TextActor(font,"Score: 0");
+		scoreKeeper.setPosition(0,(GRID_ROWS + 1)*GRID_STEP);
+		stage.addActor(scoreKeeper);
+		
 	}
 	
 	// Methods
 
 	@Override
-	public void dispose() {
-	
-		stage.dispose();
-		
-	}
+	public void dispose() {stage.dispose();}
 	
 	@Override
 	public void render(float delta) {
@@ -114,6 +124,9 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 			elapsedTime = 0f;
 			
 		}
+		for (Patron p: patrons) score += p.incrementScore();
+		scoreKeeper.center(0,WORLD_WIDTH,GRID_ROWS*GRID_STEP,WORLD_HEIGHT);
+		scoreKeeper.setText("Score: " + score);
 		
         // Clear screen (black)
         
@@ -123,8 +136,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
         // Draw game objects
         
         stage.draw();
-		
-		
+	
 	}
 	
 	@Override
@@ -135,10 +147,6 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	}
 	
 	@Override
-	public void show() {
-		
-		Gdx.input.setInputProcessor(stage);
-		
-	}
+	public void show() {Gdx.input.setInputProcessor(stage);}
 
 }

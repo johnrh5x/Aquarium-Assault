@@ -15,5 +15,7 @@ public interface Constants {
 	public static final int GRID_COLUMNS = 11;
 	public static final int GRID_STEP    = 10;
 	public static final int EXIT_ROW     = 2;
+	public static final int WORLD_WIDTH  = GRID_COLUMNS*GRID_STEP;
+	public static final int WORLD_HEIGHT = (GRID_ROWS + 1)*GRID_STEP;
 
 }
