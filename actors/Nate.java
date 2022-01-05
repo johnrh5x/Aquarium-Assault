@@ -4,12 +4,18 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.utils.Array;
 
 public class Nate extends TextureActor {
 
 	// Fields
 	
+	private static final int DOWN  = 0;
+	private static final int LEFT  = 1;
+	private static final int RIGHT = 2;
+	private static final int UP    = 3;
 	
+	private boolean[] canMove;
 		
 	// Constructor(s)
 	
@@ -36,18 +42,42 @@ public class Nate extends TextureActor {
 			}
 		});
 		
+		/* Initialize array denoting valid moves */
+		
+		canMove = new boolean[4];
+		
 	}
 	
 	// Methods
 
 	@Override
-	public void moveDown() {
-		
-		/* Modified from the TextureActor version in order to prevent 
-		 * Nate from walking into the fish tank. */
+	public void moveDown() {if (canMove[DOWN]) setRow(getRow() - 1);}
+
+	@Override
+	public void moveLeft() {if (canMove[LEFT]) setColumn(getColumn() - 1);}
+
+	@Override
+	public void moveRight() {if (canMove[RIGHT]) setColumn(getColumn() + 1);}
+
+	@Override
+	public void moveUp() {if (canMove[UP]) setRow(getRow() + 1);}
+
+	public void getValidMoves(Patron[] patrons) {
 		
 		int r = getRow();
-		if (r > EXIT_ROW) setRow(r - 1);
+		int c = getColumn();
+		canMove[DOWN] = r > EXIT_ROW;
+		canMove[LEFT] = c > 0;
+		canMove[RIGHT] = c < GRID_COLUMNS - 1;
+		canMove[UP] = r < GRID_ROWS - 1;
+		for (Patron p: patrons) {
+			if (!p.isOffstage()) {
+				if (canMove[DOWN]) canMove[DOWN] = !(p.getRow() == r - 1 && p.getColumn() == c);
+				if (canMove[LEFT]) canMove[LEFT] = !(p.getRow() == r && p.getColumn() == c - 1);
+				if (canMove[RIGHT]) canMove[RIGHT] = !(p.getRow() == r && p.getColumn() == c + 1);
+				if (canMove[UP]) canMove[UP] = !(p.getRow() == r + 1 && p.getColumn() == c);
+			}
+		}
 		
 	}
 

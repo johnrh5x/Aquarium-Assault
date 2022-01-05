@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 
@@ -25,7 +24,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	private Nate          nate;
 	private Dogfish       dogfish;
 	private int           numberOfPatrons;
-	private Array<Patron> patrons;
+	private Patron[]      patrons;
 	private float         elapsedTime;
 	private float         newPatronInterval;
 	private int           score;
@@ -74,8 +73,8 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		/* Create patrons */
 		
 		numberOfPatrons = GRID_COLUMNS;
-		patrons = new Array<Patron>(numberOfPatrons);
-		for (int i = 0; i < numberOfPatrons; i++) patrons.add(new Patron(textures[ALICE]));
+		patrons = new Patron[numberOfPatrons];
+		for (int i = 0; i < numberOfPatrons; i++) patrons[i] = new Patron(textures[ALICE]);
 		
 		/* Set a timer for the addition of a new patron */
 		
@@ -106,6 +105,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		
 		Patron.setNatePosition(nate);
 		Patron.setFishPosition(dogfish);
+		nate.getValidMoves(patrons);
 		stage.act(delta);
 		elapsedTime += delta;
 		if (elapsedTime > newPatronInterval) {
@@ -113,8 +113,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 			/* Find the first patron in the array who's offstage and 
 			 * add them to the stage. */
 			 
-			for (int i = 0; i < patrons.size; i++) {
-				Patron p = patrons.get(i);
+			for (Patron p: patrons) {
 				if (p.isOffstage()) {
 					p.reset();
 					stage.addActor(p);
