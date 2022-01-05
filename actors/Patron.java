@@ -133,12 +133,13 @@ public class Patron extends TextureActor {
 	public void descend() {
 
 		int c = getColumn();
-		if (emptyColumn[c]) {
+		boolean blockedByNate = nateColumn == getColumn() && nateRow == getRow() - 1;
+		if (emptyColumn[c] && !blockedByNate) {
 			
 			/* If the patron is in a column where no other patrons are
-			 * waiting, the patron should move down a row.  If the
-			 * patron reaches the bottom row, they should transition
-			 * to the waiting phase. */
+			 * waiting and is not directly above Nate, then the patron 
+			 * should move down a row.  If the patron reaches the bottom
+			 * row, they should transition to the waiting phase. */
 			 
 			moveDown();
 			if (getRow() == EXIT_ROW) {
@@ -148,9 +149,10 @@ public class Patron extends TextureActor {
 			
 		} else {
 			
-			/* If there is another patron waiting in this column, the
-			 * patron should move in the direction of the closest
-			 * column without a waiting patron. */
+			/* If there is another patron waiting in this column or the
+			 * patron is directly above Nate, then the patron should 
+			 * move in the direction of the closest column without a
+			 * waiting patron. */
 			 
 			int left = -1;
 			for (int i = c - 1; i >= 0; i--) {
