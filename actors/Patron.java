@@ -59,7 +59,7 @@ public class Patron extends TextureActor {
 	private static int                   turnWait = 4;      // Number of turns to spend in the waiting phase
 	private static float                 tapProb = 0.125f;  // Chance per turn of transitioning from DEFAULT to TAPPING
 	private static RandomXS128           rng;
-	private static int                   nateRow, nateColumn, fishRow, fishColumn;
+	private static int                   matthewRow, matthewColumn, nateRow, nateColumn, fishRow, fishColumn;
 	private        Phase                 phase;
 	private        State                 state;
 	private        float                 elapsedTime;
@@ -115,8 +115,19 @@ public class Patron extends TextureActor {
 			}
 		}
 		
-		/* If the patron WAITING, check to see if the patron is next to 
-		 * the dogfish.  If so, change the patron's state to 
+		/* If the patron isn't EXITING and is in the DEFAULT state,
+		 * check to see if the patron is next to Matthew.  If so,
+		 * change the patron's state to TAPPING. */
+		
+		if (phase != Phase.EXITING && state == State.DEFAULT) {
+			if (isAdjacentTo(matthewRow,matthewColumn)) {
+				state = State.TAPPING;
+				setColor(State.TAPPING.color());
+			}
+		}
+		
+		/* If the patron is WAITING, check to see if the patron is next 
+		 * to the dogfish.  If so, change the patron's state to 
 		 * EXITING. */
 		 
 		if (phase == Phase.WAITING) {
@@ -132,14 +143,17 @@ public class Patron extends TextureActor {
 	
 	public void descend() {
 
+		int r = getRow();
 		int c = getColumn();
-		boolean blockedByNate = nateColumn == getColumn() && nateRow == getRow() - 1;
-		if (emptyColumn[c] && !blockedByNate) {
+		boolean blocked = matthewRow == r - 1 && matthewColumn == c;
+		if (!blocked) blocked = nateRow == r - 1 && nateColumn == c;
+		if (emptyColumn[c] && !blocked) {
 			
 			/* If the patron is in a column where no other patrons are
-			 * waiting and is not directly above Nate, then the patron 
-			 * should move down a row.  If the patron reaches the bottom
-			 * row, they should transition to the waiting phase. */
+			 * waiting and is not directly above Nate or Matthew, then 
+			 * the patron should move down a row.  If the patron reaches
+			 * the bottom row, they should transition to the waiting
+			 * phase. */
 			 
 			moveDown();
 			if (getRow() == EXIT_ROW) {
@@ -150,9 +164,9 @@ public class Patron extends TextureActor {
 		} else {
 			
 			/* If there is another patron waiting in this column or the
-			 * patron is directly above Nate, then the patron should 
-			 * move in the direction of the closest column without a
-			 * waiting patron. */
+			 * patron is directly above Nate or Matthew, then the patron
+			 * should move in the direction of the closest column
+			 * without a waiting patron. */
 			 
 			int left = -1;
 			for (int i = c - 1; i >= 0; i--) {
@@ -226,8 +240,6 @@ public class Patron extends TextureActor {
 		
 	}
 	
-	public boolean isDescending() {return phase == Phase.DESCENDING;}
-
 	public boolean isOffstage() {return phase == Phase.OFFSTAGE;}
 
 	public void reset() {
@@ -241,19 +253,17 @@ public class Patron extends TextureActor {
 		
 	}
 
-	public void setIntercepted(boolean b) {
-		
-		if (b) {
-			state = State.INTERCEPTED;
-			setColor(State.INTERCEPTED.color());
-		}
-		
-	}
-
 	public static void setFishPosition(TextureActor fish) {
 		
 		fishRow = fish.getRow();
 		fishColumn = fish.getColumn();
+		
+	}
+
+	public static void setMatthewPosition(TextureActor matthew) {
+		
+		matthewRow = matthew.getRow();
+		matthewColumn = matthew.getColumn();
 		
 	}
 

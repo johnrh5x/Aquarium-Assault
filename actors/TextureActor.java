@@ -10,9 +10,16 @@ import john.aquariumassault.Constants;
 public class TextureActor extends Actor implements Constants {
 	
 	// Fields
-	
-	private Texture texture;
-	private int     row, column;
+
+	public static final int   DOWN    = 0;
+	public static final int   LEFT    = 1;
+	public static final int   RIGHT   = 2;
+	public static final int   UP      = 3;
+	public static final int[] ROW_ADJ = {-1,0,0,1};
+	public static final int[] COL_ADJ = {0,-1,1,0};
+
+	private Texture   texture;
+	private int       row, column;
 	
 	// Constructor(s)
 	

@@ -10,10 +10,11 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 
 import john.aquariumassault.actors.Dogfish;
-import john.aquariumassault.actors.TextureActor;
+import john.aquariumassault.actors.Matthew;
 import john.aquariumassault.actors.Nate;
 import john.aquariumassault.actors.Patron;
 import john.aquariumassault.actors.TextActor;
+import john.aquariumassault.actors.TextureActor;
 
 public class PlayScreen extends ScreenAdapter implements Constants {
 
@@ -25,6 +26,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	private Dogfish       dogfish;
 	private int           numberOfPatrons;
 	private Patron[]      patrons;
+	private Matthew       matthew;
 	private float         elapsedTime;
 	private float         newPatronInterval;
 	private int           score;
@@ -68,13 +70,19 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		nate = new Nate(textures[NATE]);
 		nate.setGridPosition(7,5);
 		stage.addActor(nate);
-		stage.setKeyboardFocus(nate);
+		//stage.setKeyboardFocus(nate);
 		
 		/* Create patrons */
 		
 		numberOfPatrons = GRID_COLUMNS;
 		patrons = new Patron[numberOfPatrons];
 		for (int i = 0; i < numberOfPatrons; i++) patrons[i] = new Patron(textures[ALICE]);
+		
+		/* Create Matthew */
+		
+		matthew = new Matthew(textures[MATTHEW]);
+		stage.addActor(matthew);
+		stage.setKeyboardFocus(matthew);
 		
 		/* Set a timer for the addition of a new patron */
 		
@@ -103,9 +111,11 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 
 		// Game logic
 		
+		Patron.setMatthewPosition(matthew);
 		Patron.setNatePosition(nate);
 		Patron.setFishPosition(dogfish);
-		nate.getValidMoves(patrons);
+		nate.getValidMoves(matthew, patrons);
+		matthew.getValidMoves(nate, patrons);
 		stage.act(delta);
 		elapsedTime += delta;
 		if (elapsedTime > newPatronInterval) {
