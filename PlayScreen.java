@@ -70,7 +70,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		nate = new Nate(textures[NATE]);
 		nate.setGridPosition(7,5);
 		stage.addActor(nate);
-		//stage.setKeyboardFocus(nate);
+		stage.setKeyboardFocus(nate);
 		
 		/* Create patrons */
 		
@@ -82,7 +82,6 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		
 		matthew = new Matthew(textures[MATTHEW]);
 		stage.addActor(matthew);
-		stage.setKeyboardFocus(matthew);
 		
 		/* Set a timer for the addition of a new patron */
 		

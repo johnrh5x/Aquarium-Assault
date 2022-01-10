@@ -60,7 +60,7 @@ public class Nate extends TextureActor {
 	public void getValidMoves(Matthew matthew, Patron[] patrons) {
 		
 		int r = getRow();
-		int c = getColumn();
+		int c = getColumn();	
 		
 		// Check for gameplay area boundaries
 		

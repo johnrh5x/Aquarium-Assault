@@ -240,6 +240,8 @@ public class Patron extends TextureActor {
 		
 	}
 	
+	public boolean isDefault() {return state == State.DEFAULT;}
+	
 	public boolean isOffstage() {return phase == Phase.OFFSTAGE;}
 
 	public void reset() {

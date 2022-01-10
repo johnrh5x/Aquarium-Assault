@@ -1,10 +1,7 @@
 package john.aquariumassault.actors;
 
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.RandomXS128;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 
 public class Matthew extends TextureActor {
 
@@ -14,7 +11,12 @@ public class Matthew extends TextureActor {
 
 	// Fields
 	
+	private RandomXS128 rng;
 	private boolean[]   canMove;
+	private float       elapsedTime;
+	private float       turnLength = 0.5f;    // Three turns per second
+	private int         nateRow, nateColumn;
+	private int[]       nearestDefaultPatron;
 	
 	// Constructor
 	
@@ -23,31 +25,140 @@ public class Matthew extends TextureActor {
 		// Declarations & initialization
 		
 		super(texture);
+		rng = new RandomXS128();
 		canMove = new boolean[4];
+		elapsedTime = 0f;
+		nearestDefaultPatron = new int[2];
 		setGridPosition(GRID_ROWS - 2, GRID_COLUMNS/2);
- 		
- 		// Allow Matthew to accept keyboard input
- 				
-		addListener(new InputListener() {
-			@Override
-			public boolean keyDown(InputEvent event, int keycode) {
-				switch (keycode) {
-					case Keys.W:     moveUp();    break;
-					case Keys.A:     moveLeft();  break;
-					case Keys.S:     moveDown();  break;
-					case Keys.D:     moveRight(); break;
-					case Keys.UP:    moveUp();    break;
-					case Keys.LEFT:  moveLeft();  break;
-					case Keys.DOWN:  moveDown();  break;
-					case Keys.RIGHT: moveRight(); break;
-				}
-				return true;
-			}
-		});
  		
 	}
 	
 	// Methods
+	
+	@Override
+	public void act(float delta) {
+		
+		/* Matthew should pursue the nearest DEFAULT patron, unless he
+		 * is within 3 spaces of Nate, in which case he should flee
+		 * from Nate.  If there are no DEFAULT patrons to chase and
+		 * Nate is far away, Matthew should move randomly. */
+		
+		elapsedTime += delta;
+		if (elapsedTime > turnLength) {
+			int index;
+			if (distanceTo(nateRow,nateColumn) <= 3) {
+				index = fleeNate();
+			} else {
+				index = chasePatron();
+			}
+			if (index == -1) index = randomMove();
+			switch (index) {
+				case DOWN:  moveDown();  break;
+				case LEFT:  moveLeft();  break;
+				case RIGHT: moveRight(); break;
+				case UP:    moveUp();    break;
+			}
+			elapsedTime = 0f;
+		}
+
+	}
+	
+	private int chasePatron() {
+		
+		/* This method returns the index of the move that puts Matthew
+		 * closest to the nearest patron in the DEFAULT state or -1 if
+		 * there is no such patron or no valid move that puts Matthew
+		 * closer to said patron. */
+		
+		int output = -1;
+		if (nearestDefaultPatron[0] != -1 && nearestDefaultPatron[1] != -1) {
+			
+			/* Determine which moves get Matthew closer to the patron. */
+			
+			int dy = getRow() - nearestDefaultPatron[0];
+			int dx = getColumn() - nearestDefaultPatron[1];
+			boolean[] closer = new boolean[4];
+			closer[DOWN] = dy > 0;
+			closer[LEFT] = dx > 0;
+			closer[RIGHT] = dx < 0;
+			closer[UP] = dy < 0;
+			
+			/* Pick one of those moves at random. */
+
+			int moves = 0;
+			for (int i = 0; i < closer.length; i++) {
+				if (closer[i]) moves++;
+			}
+			int random = rng.nextInt(moves);
+			int counter = 0;
+			for (int i = 0; i < closer.length; i++) {
+				if (closer[i]) {
+					if (counter == random) {
+						output = i;
+						break;
+					}
+					counter++;
+				}
+			}
+			
+		}
+		return output;
+		
+	}
+	
+	private int distanceTo(int row, int column) {
+		
+		/* This method returns the distance from Matthew's position to
+		 * the row and column in the arguments. */
+		 
+		int dx = getRow() - row;
+		int dy = getColumn() - column;
+		if (dx < 0f) dx *= -1;
+		if (dy < 0f) dy *= -1;
+		return dx + dy;
+		
+	}
+	
+	private int fleeNate() {
+		
+		int r = getRow();
+		int c = getColumn();
+		
+		/* Determine which directions would put Matthew further from 
+		 * Nate. */
+		
+		boolean[] farther = new boolean[4];
+		farther[DOWN]  = r <= nateRow    && canMove[DOWN];
+		farther[LEFT]  = c <= nateColumn && canMove[LEFT];
+		farther[RIGHT] = c >= nateColumn && canMove[RIGHT];
+		farther[UP]    = r >= nateRow    && canMove[UP];
+		
+		/* Choose one of those directions at random. */
+		
+		int output = -1;
+		int moves = 0;
+		for (int i = 0; i < farther.length; i++) {
+			if (farther[i]) moves++;
+		}
+		if (moves > 0) {
+			int random = rng.nextInt(moves);
+			int counter = 0;
+			for (int i = 0; i < farther.length; i++) {
+				if (farther[i]) {
+					if (counter == random) {
+						output = i;
+						break;
+					}
+					counter++;
+				}
+			}
+		}
+		
+		// Return output
+		
+		return output;
+		
+	}
 	
 	public void getValidMoves(Nate nate, Patron[] patrons) {
 		
@@ -63,9 +174,11 @@ public class Matthew extends TextureActor {
 		
 		// Check for collisions with Nate and patrons
 		
+		nateRow = nate.getRow();
+		nateColumn = nate.getColumn();
 		for (int i = DOWN; i <= UP; i++) {
 			if (canMove[i]) {
-				canMove[i] = !(nate.getRow() == r + ROW_ADJ[i] && nate.getColumn() == c + COL_ADJ[i]);
+				canMove[i] = !(nateRow == r + ROW_ADJ[i] && nateColumn == c + COL_ADJ[i]);
 				if (canMove[i]) {
 					for (Patron p: patrons) {
 						if (!p.isOffstage()) {
@@ -76,19 +189,61 @@ public class Matthew extends TextureActor {
 				}
 			}
 		}
+		
+		// Get the position of nearest Patron in the DEFAULT state;
+		
+		nearestDefaultPatron[0] = -1;
+		nearestDefaultPatron[1] = -1;
+		int minDistance = GRID_ROWS + GRID_COLUMNS;
+		for (Patron p: patrons) {
+			if (!p.isOffstage() && p.isDefault()) {
+				int pr = p.getRow();
+				int pc = p.getColumn();
+				int d = distanceTo(pr,pc);
+				if (d < minDistance) {
+					minDistance = d;
+					nearestDefaultPatron[0] = pr;
+					nearestDefaultPatron[1] = pc;
+				}
+			}
+		}
 
 	}
-
-	@Override
-	public void moveDown() {if (canMove[DOWN]) setRow(getRow() - 1);}
-
-	@Override
-	public void moveLeft() {if (canMove[LEFT]) setColumn(getColumn() - 1);}
-
-	@Override
-	public void moveRight() {if (canMove[RIGHT]) setColumn(getColumn() + 1);}
-
-	@Override
-	public void moveUp() {if (canMove[UP]) setRow(getRow() + 1);}
+	
+	private int randomMove() {
+		
+		/* This method returns the index of a valid move or -1 if there
+		 * are no valid moves. */
+		
+		int output = -1;
+				
+		// Count the number of valid moves
+		
+		int moves = 0;
+		for (int i = 0; i < canMove.length; i++) {
+			if (canMove[i]) moves++;
+		}
+		
+		// If there are valid moves, pick one at random
+		
+		if (moves > 0) {
+			int random = rng.nextInt(moves);
+			int counter = 0;
+			for (int i = 0; i < canMove.length; i++) {
+				if (canMove[i]) {
+					if (counter == random) {
+						output = i;
+						break;
+					}
+					counter++;
+				}
+			}			
+		}
+		
+		// Return the result
+		
+		return output;
+		
+	}
 
 }
