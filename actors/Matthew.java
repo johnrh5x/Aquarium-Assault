@@ -14,8 +14,8 @@ public class Matthew extends TextureActor {
 	private RandomXS128 rng;
 	private boolean[]   canMove;
 	private float       elapsedTime;
-	private float       turnLength = 0.5f;    // Three turns per second
-	private int         nateRow, nateColumn;
+	private float       turnLength = 0.5f; // Two turns per second
+	private int         nateRow, nateColumn, fishRow, fishColumn;
 	private int[]       nearestDefaultPatron;
 	
 	// Constructor
@@ -38,19 +38,9 @@ public class Matthew extends TextureActor {
 	@Override
 	public void act(float delta) {
 		
-		/* Matthew should pursue the nearest DEFAULT patron, unless he
-		 * is within 3 spaces of Nate, in which case he should flee
-		 * from Nate.  If there are no DEFAULT patrons to chase and
-		 * Nate is far away, Matthew should move randomly. */
-		
 		elapsedTime += delta;
 		if (elapsedTime > turnLength) {
-			int index;
-			if (distanceTo(nateRow,nateColumn) <= 3) {
-				index = fleeNate();
-			} else {
-				index = chasePatron();
-			}
+			int index = chaseFish();
 			if (index == -1) index = randomMove();
 			switch (index) {
 				case DOWN:  moveDown();  break;
@@ -61,6 +51,50 @@ public class Matthew extends TextureActor {
 			elapsedTime = 0f;
 		}
 
+	}
+
+	private int chaseFish() {
+		
+		/* This method returns the index of the move that puts Matthew
+		 * closest to the dogfish or -1 if there is no valid move that
+		 * would put him closer to the dogfish. */
+		 
+		int output = -1;
+		
+		// Identify desirable moves
+		
+		int dy = getRow() - fishRow;
+		int dx = getColumn() - fishColumn;
+		boolean[] closer = new boolean[4];
+		closer[DOWN]  = dy > 0 && canMove[DOWN];
+		closer[LEFT]  = dx > 0 && canMove[LEFT];
+		closer[RIGHT] = dx < 0 && canMove[RIGHT];
+		closer[UP]    = dy < 0 && canMove[UP];
+		
+		// Choose randomly from among the desirable moves, if any
+		
+		int moves = 0;
+		for (int i = 0; i < closer.length; i++) {
+			if (closer[i]) moves++;
+		}
+		if (moves > 0) {
+			int random = rng.nextInt(moves);
+			int counter = 0;
+			for (int i = 0; i < closer.length; i++) {
+			if (closer[i]) {
+					if (counter == random) {
+						output = i;
+						break;
+					}
+					counter++;
+				}
+			}
+		}
+		
+		// Return output
+		
+		return output;
+		
 	}
 	
 	private int chasePatron() {
@@ -78,10 +112,10 @@ public class Matthew extends TextureActor {
 			int dy = getRow() - nearestDefaultPatron[0];
 			int dx = getColumn() - nearestDefaultPatron[1];
 			boolean[] closer = new boolean[4];
-			closer[DOWN] = dy > 0;
-			closer[LEFT] = dx > 0;
-			closer[RIGHT] = dx < 0;
-			closer[UP] = dy < 0;
+			closer[DOWN]  = dy > 0 && canMove[DOWN];
+			closer[LEFT]  = dx > 0 && canMove[LEFT];
+			closer[RIGHT] = dx < 0 && canMove[RIGHT];
+			closer[UP]    = dy < 0 && canMove[UP];
 			
 			/* Pick one of those moves at random. */
 
@@ -89,15 +123,17 @@ public class Matthew extends TextureActor {
 			for (int i = 0; i < closer.length; i++) {
 				if (closer[i]) moves++;
 			}
-			int random = rng.nextInt(moves);
-			int counter = 0;
-			for (int i = 0; i < closer.length; i++) {
-				if (closer[i]) {
-					if (counter == random) {
-						output = i;
-						break;
+			if (moves > 0) {
+				int random = rng.nextInt(moves);
+				int counter = 0;
+				for (int i = 0; i < closer.length; i++) {
+					if (closer[i]) {
+						if (counter == random) {
+							output = i;
+							break;
+						}
+						counter++;
 					}
-					counter++;
 				}
 			}
 			
@@ -160,7 +196,7 @@ public class Matthew extends TextureActor {
 		
 	}
 	
-	public void getValidMoves(Nate nate, Patron[] patrons) {
+	public void getValidMoves(Nate nate, Patron[] patrons, Dogfish dogfish) {
 		
 		int r = getRow();
 		int c = getColumn();
@@ -207,6 +243,11 @@ public class Matthew extends TextureActor {
 				}
 			}
 		}
+		
+		// Get the position of the dogfish
+		
+		fishRow = dogfish.getRow();
+		fishColumn = dogfish.getColumn();
 
 	}
 	

@@ -114,7 +114,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		Patron.setNatePosition(nate);
 		Patron.setFishPosition(dogfish);
 		nate.getValidMoves(matthew, patrons);
-		matthew.getValidMoves(nate, patrons);
+		matthew.getValidMoves(nate, patrons, dogfish);
 		stage.act(delta);
 		elapsedTime += delta;
 		if (elapsedTime > newPatronInterval) {
@@ -135,6 +135,10 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		for (Patron p: patrons) score += p.incrementScore();
 		scoreKeeper.center(0,WORLD_WIDTH,GRID_ROWS*GRID_STEP,WORLD_HEIGHT);
 		scoreKeeper.setText("Score: " + score);
+		if (matthew.isAdjacentTo(dogfish)) {
+			System.out.println("Matthew caught the dogfish.");
+			System.exit(0);
+		}
 		
         // Clear screen (black)
         

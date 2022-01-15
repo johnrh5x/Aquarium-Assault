@@ -247,7 +247,7 @@ public class Patron extends TextureActor {
 	public void reset() {
 		
 		setGridPosition(GRID_ROWS - 1, rng.nextInt(GRID_COLUMNS));
-		setColor(Color.WHITE);
+		setColor(State.DEFAULT.color());
 		phase = Phase.DESCENDING;
 		state = State.DEFAULT;
 		elapsedTime = 0f;
