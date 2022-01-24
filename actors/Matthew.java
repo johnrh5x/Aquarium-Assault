@@ -41,7 +41,7 @@ public class Matthew extends TextureActor {
 		elapsedTime += delta;
 		if (elapsedTime > turnLength) {
 			int index = chaseFish();
-			if (index == -1) index = randomMove();
+			//if (index == -1) index = randomMove();
 			switch (index) {
 				case DOWN:  moveDown();  break;
 				case LEFT:  moveLeft();  break;
@@ -56,15 +56,32 @@ public class Matthew extends TextureActor {
 	private int chaseFish() {
 		
 		/* This method returns the index of the move that puts Matthew
-		 * closest to the dogfish or -1 if there is no valid move that
-		 * would put him closer to the dogfish. */
+		 * closest to grid square where the dogfish will be on its next 
+		 * turn or -1 if there is no valid move that would put him 
+		 * closer to the dogfish. */
 		 
 		int output = -1;
 		
+		// Future fish position
+		
+		int nextRow = fishRow;
+		int nextColumn = fishColumn;
+		if (fishColumn == 0 && fishRow > 0) {
+			nextRow--;
+		} else if (fishColumn == GRID_COLUMNS - 1 && fishRow < EXIT_ROW - 1) {
+			nextRow++;
+		} else if (fishRow == 0) {
+			nextColumn++;
+		} else if (fishRow == EXIT_ROW - 1) {
+			nextColumn--;
+		} else {
+			System.out.println("Something has gone horribly wrong in Matthew's fish-prediction code.");
+		}
+		
 		// Identify desirable moves
 		
-		int dy = getRow() - fishRow;
-		int dx = getColumn() - fishColumn;
+		int dy = getRow() - nextRow;
+		int dx = getColumn() - nextColumn;
 		boolean[] closer = new boolean[4];
 		closer[DOWN]  = dy > 0 && canMove[DOWN];
 		closer[LEFT]  = dx > 0 && canMove[LEFT];

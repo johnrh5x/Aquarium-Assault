@@ -137,7 +137,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		scoreKeeper.setText("Score: " + score);
 		if (matthew.isAdjacentTo(dogfish)) {
 			System.out.println("Matthew caught the dogfish.");
-			System.exit(0);
+			Gdx.app.exit();
 		}
 		
         // Clear screen (black)

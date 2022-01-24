@@ -246,7 +246,29 @@ public class Patron extends TextureActor {
 
 	public void reset() {
 		
-		setGridPosition(GRID_ROWS - 1, rng.nextInt(GRID_COLUMNS));
+		/* Set the Patron's position, taking care not to spawn in the
+		 * same space as either Nate or Matthew. */
+		
+		int topRow = GRID_ROWS - 1;
+		int columns = GRID_COLUMNS;
+		if (nateRow == topRow) columns--;
+		if (matthewRow == topRow) columns--;
+		int random = rng.nextInt(columns);
+		int counter = -1;
+		int index = -1;
+		for (int i = 0; i < GRID_COLUMNS; i++) {
+			boolean flag = (nateRow == topRow && nateColumn == i) || (matthewRow == topRow && matthewColumn == i);
+			if (!flag) {
+				if (++counter == random) {
+					index = i;
+					break;
+				}
+			}
+		}
+		setGridPosition(topRow,index);
+		
+		/* Set other properties. */
+		
 		setColor(State.DEFAULT.color());
 		phase = Phase.DESCENDING;
 		state = State.DEFAULT;
