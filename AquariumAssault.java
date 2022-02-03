@@ -10,7 +10,6 @@ public class AquariumAssault extends Game implements Constants {
 	// Fields
 	
 	private Texture[]  textures;
-	private BitmapFont font;
 	
 	// Methods
 	
@@ -26,15 +25,10 @@ public class AquariumAssault extends Game implements Constants {
 		textures[BACKGROUND] = new Texture(Gdx.files.internal("background.png"));
 		textures[FISHTANK] = new Texture(Gdx.files.internal("fishtank.png"));
 		textures[DOGFISH] = new Texture(Gdx.files.internal("dogfish.png"));
-		
-		// Create a font and scale to fit
-		
-		font = new BitmapFont();                // 15 pt Arial (supposedly)
-		font.getData().setScale(GRID_STEP/30f); // Should be approximately 1/2 a grid step in height
 				
 		// Start the game
 		
-		setScreen(new PlayScreen(textures, font));
+		setScreen(new TitleScreen(this, textures));
 
 	}
 	
@@ -42,7 +36,6 @@ public class AquariumAssault extends Game implements Constants {
 	public void dispose () {
 		
 		for (Texture t: textures) t.dispose();
-		font.dispose();
 		
 	}
 

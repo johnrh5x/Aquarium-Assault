@@ -58,7 +58,20 @@ public class TextActor extends Actor implements Constants {
 		
 		super.setPosition(x,y);
 		GlyphLayout l = new GlyphLayout(font,text);
+		drawX = getX();
 		drawY = y + 0.5f*(getHeight() + l.height);
+		
+	}
+
+	@Override
+	public void setX(float x) {
+		
+		/* Because text can be centered (see the centerHorizontally()
+		 * method) we need to override the setX() method so that the
+		 * text moves horizontally when the Actor moves horizontally. */
+		
+		super.setX(x);
+		drawX = getX();
 		
 	}
 

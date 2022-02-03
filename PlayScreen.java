@@ -1,5 +1,6 @@
 package john.aquariumassault;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -7,7 +8,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.FillViewport;
 
 import john.aquariumassault.actors.Dogfish;
 import john.aquariumassault.actors.Matthew;
@@ -21,7 +21,9 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 
 	// Fields
 	
+	private Game          game;
 	private Texture[]     textures;
+	private BitmapFont    font;
 	private Stage         stage;
 	private Nate          nate;
 	private Dogfish       dogfish;
@@ -36,8 +38,9 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	
 	// Constructor(s)
 	
-	public PlayScreen(Texture[] textures, BitmapFont font) {
+	public PlayScreen(Game game, Texture[] textures) {
 		
+		this.game     = game;
 		this.textures = textures;
 		
 		/* Create a stage to hold the actors and center the camera in
@@ -96,6 +99,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		
 		/* Create an actor to show the score */
 		
+		font = new BitmapFont();
 		scoreKeeper = new TextActor(font,"Score: 0");
 		scoreKeeper.setWidth(WORLD_WIDTH/2);
 		scoreKeeper.setHeight(GRID_STEP);
@@ -116,7 +120,12 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	// Methods
 
 	@Override
-	public void dispose() {stage.dispose();}
+	public void dispose() {
+	
+		font.dispose();
+		stage.dispose();
+		
+	}
 	
 	@Override
 	public void render(float delta) {
