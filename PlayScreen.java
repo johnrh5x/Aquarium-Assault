@@ -15,6 +15,7 @@ import john.aquariumassault.actors.Nate;
 import john.aquariumassault.actors.Patron;
 import john.aquariumassault.actors.TextActor;
 import john.aquariumassault.actors.TextureActor;
+import john.aquariumassault.actors.TimeKeeper;
 
 public class PlayScreen extends ScreenAdapter implements Constants {
 
@@ -31,6 +32,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	private float         newPatronInterval;
 	private int           score;
 	private TextActor     scoreKeeper;
+	private TimeKeeper    timeKeeper;
 	
 	// Constructor(s)
 	
@@ -83,7 +85,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		matthew = new Matthew(textures[MATTHEW]);
 		stage.addActor(matthew);
 		
-		/* Set a timer for the addition of a new patron */
+		/* Set timers */
 		
 		newPatronInterval = 2f;
 		elapsedTime = newPatronInterval;
@@ -95,8 +97,19 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		/* Create an actor to show the score */
 		
 		scoreKeeper = new TextActor(font,"Score: 0");
-		scoreKeeper.setPosition(0,(GRID_ROWS + 1)*GRID_STEP);
+		scoreKeeper.setWidth(WORLD_WIDTH/2);
+		scoreKeeper.setHeight(GRID_STEP);
+		scoreKeeper.setPosition(0, WORLD_HEIGHT - GRID_STEP);
 		stage.addActor(scoreKeeper);
+		
+		/* Create an actor to show the time */
+		
+		timeKeeper = new TimeKeeper(font,60f);
+		timeKeeper.setWidth(WORLD_WIDTH/2);
+		timeKeeper.setHeight(GRID_STEP);
+		timeKeeper.setPosition(GRID_COLUMNS*GRID_STEP/2, WORLD_HEIGHT - GRID_STEP);
+		timeKeeper.centerHorizontally();
+		stage.addActor(timeKeeper);
 		
 	}
 	
@@ -133,8 +146,15 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 			
 		}
 		for (Patron p: patrons) score += p.incrementScore();
-		scoreKeeper.center(0,WORLD_WIDTH,GRID_ROWS*GRID_STEP,WORLD_HEIGHT);
 		scoreKeeper.setText("Score: " + score);
+		scoreKeeper.centerHorizontally();
+		
+		// End of round conditions
+		
+		if (timeKeeper.timeExpired()) {
+			System.out.println("Time's up!");
+			Gdx.app.exit();
+		}
 		if (matthew.isAdjacentTo(dogfish)) {
 			System.out.println("Matthew caught the dogfish.");
 			Gdx.app.exit();

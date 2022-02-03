@@ -40,8 +40,8 @@ public class Matthew extends TextureActor {
 		
 		elapsedTime += delta;
 		if (elapsedTime > turnLength) {
-			int index = chaseFish();
-			//if (index == -1) index = randomMove();
+			int index = chasePatron();
+			if (index == -1) index = randomMove();
 			switch (index) {
 				case DOWN:  moveDown();  break;
 				case LEFT:  moveLeft();  break;

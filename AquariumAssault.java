@@ -29,9 +29,9 @@ public class AquariumAssault extends Game implements Constants {
 		
 		// Create a font and scale to fit
 		
-		font = new BitmapFont();                // 15 pt Arial
-		font.getData().setScale(GRID_STEP/15f); // Scales font to fit in grid row 
-		
+		font = new BitmapFont();                // 15 pt Arial (supposedly)
+		font.getData().setScale(GRID_STEP/30f); // Should be approximately 1/2 a grid step in height
+				
 		// Start the game
 		
 		setScreen(new PlayScreen(textures, font));
