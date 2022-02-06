@@ -28,7 +28,7 @@ public class AquariumAssault extends Game implements Constants {
 				
 		// Start the game
 		
-		setScreen(new TitleScreen(this, textures));
+		setScreen(new CreditsScreen(this));
 
 	}
 	
@@ -39,5 +39,14 @@ public class AquariumAssault extends Game implements Constants {
 		
 	}
 
+	public Texture texture(int i) {
+		
+		Texture output = null;
+		if (i >= 0 && i < textures.length) {
+			output = textures[i];
+		}
+		return output;
+		
+	}
 	
 }

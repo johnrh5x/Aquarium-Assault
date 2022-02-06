@@ -16,19 +16,17 @@ public class TitleScreen extends ScreenAdapter implements Constants {
 	
 	//  Fields
 	
-	private Game           game;
-	private Texture[]      textures;
-	private BitmapFont     titleFont, subtitleFont, tagFont;
-	private TextureActor[] actors;
-	private Stage          stage;
-	private float          elapsedTime = 0f;
+	private AquariumAssault game;
+	private BitmapFont      titleFont, subtitleFont, tagFont;
+	private TextureActor[]  actors;
+	private Stage           stage;
+	private float           elapsedTime = 0f;
 	
 	// Constructor
 	
-	public TitleScreen(Game game, Texture[] textures) {
+	public TitleScreen(AquariumAssault game) {
 		
 		this.game = game;
-		this.textures = textures;
 		
 		// Create a stage
 		
@@ -75,15 +73,15 @@ public class TitleScreen extends ScreenAdapter implements Constants {
 		// Create portraits
 		
 		TextureActor[] actors = new TextureActor[3];
-		for (int i = 0; i < 3; i++) {
-			actors[i] = new TextureActor(textures[i]);
+		for (int i = NATE; i <= ALICE; i++) {
+			actors[i] = new TextureActor(game.texture(i));
 			actors[i].setSize(GRID_STEP, GRID_STEP);
 			actors[i].setY(subtitle.getY() - 2*GRID_STEP);
 		}
 		actors[ALICE].setX((WORLD_WIDTH - 5*GRID_STEP)/2);
 		actors[MATTHEW].setX(actors[ALICE].getX() + 2*GRID_STEP);
 		actors[NATE].setX(actors[MATTHEW].getX() + 2*GRID_STEP);
-		for (int i = 0; i < 3; i++) stage.addActor(actors[i]);
+		for (int i = 0; i < actors.length; i++) stage.addActor(actors[i]);
 		
 		// Create tag text
 		
@@ -113,7 +111,7 @@ public class TitleScreen extends ScreenAdapter implements Constants {
 	
 	private void nextScreen() {
 		
-		game.setScreen(new PlayScreen(game,textures));
+		game.setScreen(new PlayScreen(game));
 		
 	}
 		
