@@ -57,7 +57,7 @@ public class CreditsScreen extends ScreenAdapter {
 		y = new float[TEXT.length];
 		int width = Gdx.graphics.getWidth();
 		int height = Gdx.graphics.getHeight();
-		float dv = height/(2*TEXT.length + 1); 
+		float dv = height/(2f*TEXT.length + 1f); 
 		float dh = 20f;
 		float wmax = 0f;
 		for (int i = 0; i < TEXT.length; i++) {

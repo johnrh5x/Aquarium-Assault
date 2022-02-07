@@ -17,6 +17,7 @@ public class Matthew extends TextureActor {
 	private float       turnLength = 0.5f; // Two turns per second
 	private int         nateRow, nateColumn, fishRow, fishColumn;
 	private int[]       nearestDefaultPatron;
+	private boolean     escaping;
 	
 	// Constructor
 	
@@ -30,6 +31,7 @@ public class Matthew extends TextureActor {
 		elapsedTime = 0f;
 		nearestDefaultPatron = new int[2];
 		setGridPosition(GRID_ROWS - 2, GRID_COLUMNS/2);
+		escaping = false;
  		
 	}
 	
@@ -40,8 +42,12 @@ public class Matthew extends TextureActor {
 		
 		elapsedTime += delta;
 		if (elapsedTime > turnLength) {
-			int index = chasePatron();
-			if (index == -1) index = randomMove();
+			int index = -1;
+			if (escaping) {
+				index = escape();
+			} else {
+				index = chaseFish();
+			}
 			switch (index) {
 				case DOWN:  moveDown();  break;
 				case LEFT:  moveLeft();  break;
@@ -172,6 +178,39 @@ public class Matthew extends TextureActor {
 		
 	}
 	
+	private int escape() {
+		
+		/* This method returns the index of the move that best allows
+		 * Matthew to flee with the dogfish.  Matthew escapes when he
+		 * reaches the top of the screen, so he generally wants to move
+		 * up, but if Nate is close and above him, he may move to the
+		 * side. */
+		 
+		int output = -1;
+		if (canMove[UP]) output = UP;
+		if (distanceTo(nateRow,nateColumn) < 4 && nateRow > getRow()) {
+			int c = getColumn();
+			if (nateColumn < c && canMove[RIGHT]) {
+				output = RIGHT;
+			} else if (nateColumn > c && canMove[LEFT]) {
+				output = LEFT;
+			} else if (nateColumn == c) {
+				if (canMove[LEFT] && !canMove[RIGHT]) {
+					output = LEFT;
+				} else if (!canMove[LEFT] && canMove[RIGHT]) {
+					output = RIGHT;
+				} else if (canMove[LEFT] && canMove[RIGHT]) {
+					switch (rng.nextInt(2)) {
+						case 0: output = LEFT;  break;
+						case 1: output = RIGHT; break;
+					}
+				}
+			}
+		}
+		return output;
+		
+	}
+	
 	private int fleeNate() {
 		
 		int r = getRow();
@@ -268,6 +307,8 @@ public class Matthew extends TextureActor {
 
 	}
 	
+	public boolean isEscaping() {return escaping;}
+	
 	private int randomMove() {
 		
 		/* This method returns the index of a valid move or -1 if there
@@ -303,5 +344,7 @@ public class Matthew extends TextureActor {
 		return output;
 		
 	}
+
+	public void setEscaping(boolean b) {escaping = b;}
 
 }

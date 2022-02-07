@@ -135,12 +135,11 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		nate.getValidMoves(matthew, patrons);
 		matthew.getValidMoves(nate, patrons, dogfish);
 		stage.act(delta);
+		
+		// Add new patron
+		
 		elapsedTime += delta;
 		if (elapsedTime > newPatronInterval) {
-			
-			/* Find the first patron in the array who's offstage and 
-			 * add them to the stage. */
-			 
 			for (Patron p: patrons) {
 				if (p.isOffstage()) {
 					p.reset();
@@ -148,22 +147,36 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 					break;
 				}
 			}
-			elapsedTime = 0f;
-			
+			elapsedTime = 0f;			
 		}
+		
+		// Update score
+		
 		for (Patron p: patrons) score += p.incrementScore();
 		scoreKeeper.setText("Score: " + score);
 		scoreKeeper.centerHorizontally();
 		
-		// End of round conditions
+		// Check state of Matthew & dogfish
+		
+		if (dogfish.isSwimming()) {			
+			if (matthew.isAdjacentTo(dogfish)) {
+				matthew.setEscaping(true);
+				dogfish.setSwimming(false);
+			}
+		} else {
+			dogfish.setGridPosition(matthew.getRow() + 1, matthew.getColumn());
+			boolean escape = matthew.getRow() == GRID_ROWS - 1;
+			boolean capture = nate.isAdjacentTo(matthew);
+			if (escape || capture) {
+				game.setScreen(new CreditsScreen(game));
+			}
+		}
+		
+		// Out of time?
 		
 		if (timeKeeper.timeExpired()) {
 			System.out.println("Time's up!");
-			Gdx.app.exit();
-		}
-		if (matthew.isAdjacentTo(dogfish)) {
-			System.out.println("Matthew caught the dogfish.");
-			Gdx.app.exit();
+			game.setScreen(new CreditsScreen(game));
 		}
 		
         // Clear screen (black)

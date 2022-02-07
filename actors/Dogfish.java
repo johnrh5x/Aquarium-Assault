@@ -30,28 +30,30 @@ public class Dogfish extends TextureActor {
 		 * dogfish swims around the tank in a counter-clockwise 
 		 * fashion. */
 		
-		elapsedTime += delta;
-		if (elapsedTime > turnLength) {
-			switch (getRow()) {
-				case 0:
-					switch (getColumn()) {
-						case GRID_COLUMNS - 1: moveUp();    break;
-						default:               moveRight(); break;
-					}
-					break;
-				case EXIT_ROW - 1:
-					switch (getColumn()) {
-						case 0:  moveDown(); break;
-						default: moveLeft(); break;
-					}
-					break;
-				default:
-					switch (getColumn()) {
-						case 0:                moveDown(); break;
-						case GRID_COLUMNS - 1: moveUp();   break;
-					}
+		if (swimming) {
+			elapsedTime += delta;
+			if (elapsedTime > turnLength) {
+				switch (getRow()) {
+					case 0:
+						switch (getColumn()) {
+							case GRID_COLUMNS - 1: moveUp();    break;
+							default:               moveRight(); break;
+						}
+						break;
+					case EXIT_ROW - 1:
+						switch (getColumn()) {
+							case 0:  moveDown(); break;
+							default: moveLeft(); break;
+						}
+						break;
+					default:
+						switch (getColumn()) {
+							case 0:                moveDown(); break;
+							case GRID_COLUMNS - 1: moveUp();   break;
+						}
+				}
+				elapsedTime = 0f;
 			}
-			elapsedTime = 0f;
 		}
 		
 	}
@@ -72,5 +74,9 @@ public class Dogfish extends TextureActor {
 		           false);          // Do not flip vertically
 		
 	}
+
+	public boolean isSwimming() {return swimming;}
+
+	public void setSwimming(boolean b) {swimming = b;}
 
 }
