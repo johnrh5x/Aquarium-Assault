@@ -14,9 +14,10 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 	
 	private static final String[][] TEXT = {{"This is you.","You work at the aquarium."},
 		                                    {"This is an aquarium patron.","Patrons aren't fish,","so they all look alike to you."},
-		                                    {"This is Mr. Basil Pesto.","He's a bad man:","tank tapper,","fish-napper,","and a thoroughly bad example."}};
+		                                    {"This is Mr. Basil Pesto.","He's a bad man:","tank tapper,","fish-napper,","and a thoroughly bad example."},
+		                                    {"Your job is to:","greet patrons as they enter,","stop patrons from tapping on the tank, and ","watch out for Mr. Basil Pesto!"}};
 
-	private static final int[] TEXTURES = {NATE,ALICE,MATTHEW};
+	private static final int[] TEXTURES = {NATE,ALICE,MATTHEW,NATE};
 
 	private static final float TEXTURE_WIDTH  = 60f;
 	private static final float TEXTURE_HEIGHT = 60f;
@@ -40,7 +41,7 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 		// Font
 		
 		font = new BitmapFont();
-		font.setColor(0f,0f,1f,1f); // Blue
+		font.setColor(0f,0f,0f,1f); // Black
 		
 		// Layout
 		
@@ -80,12 +81,12 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 		Gdx.input.setInputProcessor(new InputAdapter() {
 			@Override
 			public boolean keyDown(int keyCode) {
-				nextScreen();
+				skip();
 				return true;
 			}
 			@Override
 			public boolean touchDown(int x, int y, int p, int b) {
-				nextScreen();
+				skip();
 				return true;
 			}
 		});
@@ -100,7 +101,7 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 		
 	}
 	
-	public void nextScreen() {game.setScreen(new TitleScreen(game));}
+	private void nextScreen() {game.setScreen(new TitleScreen(game));}
 	
 	@Override
 	public void render(float delta) {
@@ -120,6 +121,16 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 			}
 			batch.draw(game.texture(TEXTURES[index]),x[index][end],y[index][end],TEXTURE_WIDTH,TEXTURE_HEIGHT);
 			batch.end();
+		} else {
+			nextScreen();
+		}
+		
+	}
+
+	private void skip() {
+		
+		if (index < TEXT.length - 1) {
+			index ++;
 		} else {
 			nextScreen();
 		}
