@@ -16,6 +16,8 @@ public class CreditsScreen extends ScreenAdapter {
 		                                    {"Aquarium Patrons","Alice Bell"},
 		                                    {"Mr. Basil Pesto", "Matthew Castle"},
 		                                    {"Underwritten Game Character", "Nate Crowley"},
+		                                    {"Questionable Design Decisions"},
+		                                    {"John Harris"},
 											{"Programming"},
 											{"John Harris"},
 											{"Portraits Yoinked From"},
@@ -25,7 +27,7 @@ public class CreditsScreen extends ScreenAdapter {
 	
 	private static final int   RED  = 0;
 	private static final int   BLUE  = 1;
-	private static final int[] COLOR = {RED,BLUE,BLUE,BLUE,RED,BLUE,RED,BLUE,RED,BLUE};
+	private static final int[] COLOR = {RED,BLUE,BLUE,BLUE,RED,BLUE,RED,BLUE,RED,BLUE,RED,BLUE};
 	
 	private AquariumAssault game;
 	private BitmapFont[]    font;
@@ -52,6 +54,38 @@ public class CreditsScreen extends ScreenAdapter {
 		font[BLUE].setColor(0f,0f,1f,1f);
 		
 		// Layout
+		
+		layout();
+		
+		// Handle input
+		
+		Gdx.input.setInputProcessor(new InputAdapter() {
+			@Override
+			public boolean keyDown(int keyCode) {
+				nextScreen();
+				return true;
+			}
+			@Override
+			public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+				nextScreen();
+				return true;
+			}
+		}); 
+		
+	}
+	
+	// Methods
+	
+	@Override
+	public void dispose() {
+		
+		font[RED].dispose();
+		font[BLUE].dispose();
+		batch.dispose();
+
+	}
+	
+	private void layout() {
 		
 		x = new float[TEXT.length][];
 		y = new float[TEXT.length];
@@ -82,32 +116,6 @@ public class CreditsScreen extends ScreenAdapter {
 			}
 		}
 		
-		// Handle input
-		
-		Gdx.input.setInputProcessor(new InputAdapter() {
-			@Override
-			public boolean keyDown(int keyCode) {
-				nextScreen();
-				return true;
-			}
-			@Override
-			public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-				nextScreen();
-				return true;
-			}
-		}); 
-		
-	}
-	
-	// Methods
-	
-	@Override
-	public void dispose() {
-		
-		font[RED].dispose();
-		font[BLUE].dispose();
-		batch.dispose();
-
 	}
 	
 	private void nextScreen() {game.setScreen(new TitleScreen(game));}
