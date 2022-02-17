@@ -22,7 +22,7 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 	private static final float TEXTURE_WIDTH  = 60f;
 	private static final float TEXTURE_HEIGHT = 60f;
 	
-	private static final float DURATION = 5f;
+	private static final float DURATION = 2.5f;
 	
 	private AquariumAssault game;
 	private BitmapFont      font;
@@ -107,7 +107,7 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 	public void render(float delta) {
 		
 		elapsedTime += delta;
-		if (elapsedTime > DURATION) {
+		if (elapsedTime > DURATION*TEXT[index].length) {
 			index++;
 			elapsedTime = 0f;
 		}
@@ -117,7 +117,9 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 			batch.begin();
 			int end = TEXT[index].length;
 			for (int i = 0; i < end; i++) {
-				font.draw(batch,TEXT[index][i],x[index][i],y[index][i]);
+				if (elapsedTime > i*DURATION) {
+					font.draw(batch,TEXT[index][i],x[index][i],y[index][i]);
+				}
 			}
 			batch.draw(game.texture(TEXTURES[index]),x[index][end],y[index][end],TEXTURE_WIDTH,TEXTURE_HEIGHT);
 			batch.end();
@@ -131,6 +133,7 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 		
 		if (index < TEXT.length - 1) {
 			index ++;
+			elapsedTime = 0f;
 		} else {
 			nextScreen();
 		}
