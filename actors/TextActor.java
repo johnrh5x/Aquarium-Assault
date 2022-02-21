@@ -1,96 +1,130 @@
 package john.aquariumassault.actors;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.DistanceFieldFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import john.aquariumassault.Constants;
 
 public class TextActor extends Actor implements Constants {
 
+	// Enumerations
+	
+	public enum HorizontalAlignment {LEFT, CENTER, RIGHT};
+	public enum VerticalAlignment   {TOP, CENTER, BOTTOM};
+	
 	// Fields
 	
-	private static final float TOLERANCE = 0.01f;
+	private DistanceFieldFont   font;
+	private ShaderProgram       shader;
+	private String              text;
+	private float               drawX, drawY;
+	private HorizontalAlignment horizontal;
+	private VerticalAlignment   vertical;
 	
-	private BitmapFont font;
-	private String     text;
-	private float      drawX, drawY;
+	// Constructor
 	
-	// Constructors
-	
-	public TextActor(BitmapFont font, String text) {
+	public TextActor(DistanceFieldFont font, ShaderProgram shader, String text) {
 		
-		super();
 		this.font = font;
+		this.shader = shader;
 		this.text = text;
-		drawX = 0f;
-		drawY = 0f;
+		horizontal = HorizontalAlignment.CENTER;
+		vertical = VerticalAlignment.CENTER;
 		
 	}
 	
 	// Methods
-
-	public void centerHorizontally() {
-		
-		GlyphLayout l = new GlyphLayout(font,text);
-		drawX = getX() + 0.5f*(getWidth() - l.width);
-		
-	}
-
+	
 	@Override
 	public void draw(Batch batch, float parentAlpha) {
 		
-		font.draw(batch, text, drawX, drawY);		
-		
+		font.setColor(getColor());
+		font.getData().setScale(getScaleX());
+		batch.setShader(shader);
+		font.draw(batch,text,drawX,drawY);
+		batch.setShader(null);
+		font.getData().setScale(1f);
+		font.setColor(Color.WHITE);
+
 	}
 
-	public void setFont(BitmapFont font) {this.font = font;}
+	public void align() {
+		
+		/* BitmapFont draw methods draw text to the right of the x
+		 * coordinate and below the y coordinate.  We override Actor's
+		 * setX, setY, and setPosition methods to account for that
+		 * fact and to make positioning TextActors consistent with the
+		 * way that we position TextureActors. */
+		
+		font.getData().setScale(getScaleX());
+		GlyphLayout l = new GlyphLayout(font,text);
+		font.getData().setScale(1f);
+		switch (horizontal) {
+			case LEFT:
+				drawX = getX();
+				break;
+			case CENTER:
+				drawX = getX() + 0.5f*(getWidth() - l.width);
+				break;
+			case RIGHT:
+				drawX = getX() + getWidth() - l.width;
+				break;
+		}
+		switch (vertical) {
+			case TOP:
+				drawY = getY() + getHeight();
+				break;
+			case CENTER:
+				drawY = getY() + 0.5f*(getHeight() + l.height);
+				break;
+			case BOTTOM:
+				drawY = getY() + l.height;
+				break;
+		}
+		System.out.println("Draw at x = " + drawX + ", y = " + drawY);
+			
+	}
+
+	public void setHorizontalAlignment(HorizontalAlignment ha) {
+		
+		horizontal = ha;
+		
+	}
 
 	@Override
 	public void setPosition(float x, float y) {
 		
-		/* We need to override the setPosition and setY methods because
-		 * The BitmapFont draw method draws text below the vertical
-		 * coordinate argument.  Batch draw methods draw above the
-		 * vertical coordinate argument.  This way, TextActors and 
-		 * TextureActors can be positioned in a consistent way. */
-		
 		super.setPosition(x,y);
-		GlyphLayout l = new GlyphLayout(font,text);
-		drawX = getX();
-		drawY = y + 0.5f*(getHeight() + l.height);
+		align();
+		
+	}
+
+	public void setText(String text) {this.text = text;}
+	
+	public void setVerticalAlignment(VerticalAlignment va) {
+		
+		vertical = va;
 		
 	}
 
 	@Override
 	public void setX(float x) {
 		
-		/* Because text can be centered (see the centerHorizontally()
-		 * method) we need to override the setX() method so that the
-		 * text moves horizontally when the Actor moves horizontally. */
-		
 		super.setX(x);
-		drawX = getX();
+		align();
 		
 	}
-
+	
 	@Override
 	public void setY(float y) {
 		
-		/* We need to override the setPosition and setY methods because
-		 * The BitmapFont draw method draws text below the vertical
-		 * coordinate argument.  Batch draw methods draw above the
-		 * vertical coordinate argument.  This way, TextActors and 
-		 * TextureActors can be positioned in a consistent way. */
-		
 		super.setY(y);
-		GlyphLayout l = new GlyphLayout(font,text);
-		drawY = y + 0.5f*(getHeight() + l.height);
+		align();
 		
 	}
-
-	public void setText(String text) {this.text = text;}
-
 	
 }

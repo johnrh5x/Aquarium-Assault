@@ -4,12 +4,16 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.DistanceFieldFont;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 public class AquariumAssault extends Game implements Constants {
 
 	// Fields
 	
-	private Texture[]  textures;
+	private Texture[]         textures;
+	private DistanceFieldFont font;
+	private ShaderProgram     fontShader;
 	
 	// Methods
 	
@@ -25,10 +29,16 @@ public class AquariumAssault extends Game implements Constants {
 		textures[BACKGROUND] = new Texture(Gdx.files.internal("background.png"));
 		textures[FISHTANK] = new Texture(Gdx.files.internal("fishtank.png"));
 		textures[DOGFISH] = new Texture(Gdx.files.internal("dogfish.png"));
-				
+		
+		// Create a scaleable font and the corresponding shader
+		
+		BitmapFont temp = new BitmapFont();
+		font = new DistanceFieldFont(temp.getData(),temp.getRegions(),false);
+		fontShader = font.createDistanceFieldShader();
+						
 		// Start the game
 		
-		setScreen(new IntroScreen(this));
+		setScreen(new TitleScreen(this));
 
 	}
 	
@@ -36,8 +46,14 @@ public class AquariumAssault extends Game implements Constants {
 	public void dispose () {
 		
 		for (Texture t: textures) t.dispose();
+		font.dispose();
+		fontShader.dispose();
 		
 	}
+
+	public DistanceFieldFont font() {return font;}
+	
+	public ShaderProgram fontShader() {return fontShader;}
 
 	public Texture texture(int i) {
 		

@@ -1,6 +1,7 @@
 package john.aquariumassault.actors;
 
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.DistanceFieldFont;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 public class TimeKeeper extends TextActor {
 
@@ -11,23 +12,23 @@ public class TimeKeeper extends TextActor {
 
 	// Constructor
 	
-	public TimeKeeper(BitmapFont font) {
+	public TimeKeeper(DistanceFieldFont font, ShaderProgram shader) {
 		
 		/* Use this constructor when you want the timer to count up from
 		 * zero. */
 		
-		super(font,null);
+		super(font,shader,null);
 		time = 0f;
 		countdown = false;
 		
 	}
 	
-	public TimeKeeper(BitmapFont font, float time) {
+	public TimeKeeper(DistanceFieldFont font, ShaderProgram shader, float time) {
 		
 		/* Use this constructor when you want the timer to count down
 		 * from the argument, which should be specified in seconds. */
 		
-		super(font,null);
+		super(font,shader,null);
 		this.time = time;
 		int minutes = (int)Math.floor(time/60);
 		int seconds = (int)Math.floor(time - minutes*60);

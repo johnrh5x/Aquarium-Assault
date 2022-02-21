@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -21,7 +20,6 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	// Fields
 	
 	private AquariumAssault game;
-	private BitmapFont      font;
 	private Stage           stage;
 	private Nate            nate;
 	private Dogfish         dogfish;
@@ -96,20 +94,22 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		
 		/* Create an actor to show the score */
 		
-		font = new BitmapFont();
-		scoreKeeper = new TextActor(font,"Score: 0");
+		System.out.println("scoreKeeper");
+		scoreKeeper = new TextActor(game.font(),game.fontShader(),"Score: 0");
 		scoreKeeper.setWidth(WORLD_WIDTH/2);
 		scoreKeeper.setHeight(GRID_STEP);
-		scoreKeeper.setPosition(0, WORLD_HEIGHT - GRID_STEP);
+		scoreKeeper.setHorizontalAlignment(TextActor.HorizontalAlignment.LEFT);
+		scoreKeeper.setPosition(0f, WORLD_HEIGHT - GRID_STEP);
 		stage.addActor(scoreKeeper);
 		
 		/* Create an actor to show the time */
 		
-		timeKeeper = new TimeKeeper(font,60f);
+		System.out.println("timeKeeper");
+		timeKeeper = new TimeKeeper(game.font(),game.fontShader(),60f);
 		timeKeeper.setWidth(WORLD_WIDTH/2);
 		timeKeeper.setHeight(GRID_STEP);
-		timeKeeper.setPosition(GRID_COLUMNS*GRID_STEP/2, WORLD_HEIGHT - GRID_STEP);
-		timeKeeper.centerHorizontally();
+		timeKeeper.setHorizontalAlignment(TextActor.HorizontalAlignment.LEFT);
+		timeKeeper.setPosition(WORLD_WIDTH/2, WORLD_HEIGHT - GRID_STEP);
 		stage.addActor(timeKeeper);
 		
 	}
@@ -119,7 +119,6 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	@Override
 	public void dispose() {
 	
-		font.dispose();
 		stage.dispose();
 		
 	}
@@ -154,7 +153,6 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		
 		for (Patron p: patrons) score += p.incrementScore();
 		scoreKeeper.setText("Score: " + score);
-		scoreKeeper.centerHorizontally();
 		
 		// Check state of Matthew & dogfish
 		

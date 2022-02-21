@@ -41,6 +41,7 @@ public class TextureActor extends Actor implements Constants {
 		Color color = getColor();
 		batch.setColor(color.r, color.g, color.b, color.a*parentAlpha);
 		batch.draw(texture,getX(),getY(),getWidth(),getHeight());
+		batch.setColor(Color.WHITE);
 		
 	}
 	

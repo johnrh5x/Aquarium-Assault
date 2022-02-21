@@ -6,6 +6,8 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.DistanceFieldFont;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -16,11 +18,10 @@ public class TitleScreen extends ScreenAdapter implements Constants {
 	
 	//  Fields
 	
-	private AquariumAssault game;
-	private BitmapFont      titleFont, subtitleFont, tagFont;
-	private TextureActor[]  actors;
-	private Stage           stage;
-	private float           elapsedTime = 0f;
+	private AquariumAssault   game;
+	private TextureActor[]    actors;
+	private Stage             stage;
+	private float             elapsedTime = 0f;
 	
 	// Constructor
 	
@@ -45,29 +46,23 @@ public class TitleScreen extends ScreenAdapter implements Constants {
 		stage.getCamera().position.x = WORLD_WIDTH/2;
 		stage.getCamera().position.y = WORLD_HEIGHT/2;
 		stage.getCamera().update();
-		
+
 		// Create title text
-		
-		titleFont = new BitmapFont();
-		titleFont.setColor(1f,0f,0f,1f); // Opaque red
-		titleFont.getData().setScale(1.25f);
-		TextActor title = new TextActor(titleFont, "Aquarium Assault");
+
+		TextActor title = new TextActor(game.font(),game.fontShader(),"Aquarium Assault");
+		title.setColor(1f,0f,0f,1f);
 		title.setWidth(WORLD_WIDTH);
 		title.setHeight(2f*GRID_STEP);
 		title.setPosition(0f, WORLD_HEIGHT - title.getHeight() - GRID_STEP);
-		title.centerHorizontally();
 		stage.addActor(title);
 		
 		// Create subtitle text
 		
-		subtitleFont = new BitmapFont();
-		subtitleFont.setColor(0f,0f,1f,1f); // Opaque blue
-		subtitleFont.getData().setScale(0.5f);
-		TextActor subtitle = new TextActor(subtitleFont,"Dark Day For a Dogfish");
+		TextActor subtitle = new TextActor(game.font(),game.fontShader(),"Dark Day For a Dogfish");
+		subtitle.setColor(0f,0f,1f,1f);
 		subtitle.setWidth(WORLD_WIDTH);
 		subtitle.setHeight(GRID_STEP);
 		subtitle.setPosition(0f,title.getY() - GRID_STEP);
-		subtitle.centerHorizontally();
 		stage.addActor(subtitle);
 		
 		// Create portraits
@@ -84,15 +79,12 @@ public class TitleScreen extends ScreenAdapter implements Constants {
 		for (int i = 0; i < actors.length; i++) stage.addActor(actors[i]);
 		
 		// Create tag text
-		
-		BitmapFont tagFont = new BitmapFont();
-		tagFont.getData().setScale(0.5f);
-		tagFont.setColor(0f,0f,0f,1f); // Opaque black
-		TextActor tagline = new TextActor(tagFont,"A Cheery EWS Fan Game");
+
+		TextActor tagline = new TextActor(game.font(),game.fontShader(),"A Cheery EWS Fan Game");
+		tagline.setColor(0f,0f,0f,1f);
 		tagline.setWidth(WORLD_WIDTH);
 		tagline.setHeight(GRID_STEP);
 		tagline.setPosition(0,GRID_STEP);
-		tagline.centerHorizontally();
 		stage.addActor(tagline); 
 		
 	}	
@@ -102,9 +94,6 @@ public class TitleScreen extends ScreenAdapter implements Constants {
 	@Override
 	public void dispose() {
 	
-		titleFont.dispose();
-		subtitleFont.dispose();
-		tagFont.dispose();
 		stage.dispose();
 		
 	}
