@@ -1,12 +1,14 @@
 package john.aquariumassault;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+
+import john.aquariumassault.actors.TextActor;
+import john.aquariumassault.actors.TextureActor;
 
 public class IntroScreen extends ScreenAdapter implements Constants {
 
@@ -17,127 +19,122 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 		                                    {"This is Mr. Basil Pesto.","He's a bad man:","tank tapper,","fish-napper,","and a thoroughly bad example."},
 		                                    {"Your job is to:","greet patrons as they enter,","stop patrons from tapping on the tank, and ","watch out for Mr. Basil Pesto!"}};
 
-	private static final int[] TEXTURES = {NATE,ALICE,MATTHEW,NATE};
+	private static final int[] PORTRAIT_INDEX = {NATE,ALICE,MATTHEW,NATE};
 
-	private static final float TEXTURE_WIDTH  = 60f;
-	private static final float TEXTURE_HEIGHT = 60f;
-	
-	private static final float DURATION = 2.5f;
-	
 	private AquariumAssault game;
-	private BitmapFont      font;
-	private float[][]       x, y;
-	private SpriteBatch     batch;
-	private int             index = 0;
-	private float           elapsedTime = 0f;
+	private Stage           stage;
+	private TextureActor[]  portrait;
+	private TextActor[][]   text;
+	private float[]         dy; // Used to compute coordinates for portraits and text
+	private int             scene, line;
+	private float           delay = 3f;
 	
 	// Constructor
 	
 	public IntroScreen(AquariumAssault game) {
 		
 		this.game = game;
-		batch = new SpriteBatch();
 		
-		// Font
+		// Create a stage and configure it to handle input
 		
-		font = new BitmapFont();
-		font.setColor(0f,0f,0f,1f); // Black
-		
-		// Layout
-		
-		int width = Gdx.graphics.getWidth();
-		int height = Gdx.graphics.getHeight();
-		x = new float[TEXT.length][];
-		y = new float[TEXT.length][];
-		for (int i = 0; i < TEXT.length; i++) {
-			int size = TEXT[i].length + 1;
-			x[i] = new float[size];
-			y[i] = new float[size];
-			float[] h = new float[TEXT[i].length];
-			float total = 0f;
-			for (int j = 0; j < TEXT[i].length; j++) {
-				GlyphLayout l = new GlyphLayout(font,TEXT[i][j]);
-				x[i][j] = 0.5f*(width - l.width);
-				h[j] = l.height;
-				total += l.height;
-			}
-			x[i][size - 1] = 0.5f*(width - TEXTURE_WIDTH);
-			total += TEXTURE_HEIGHT;
-			float dy = (height - total)/(size + 1);
-			y[i][size - 1] = height - dy - TEXTURE_HEIGHT;
-			for (int j = 0; j < TEXT[i].length; j++) {
-				switch (j) {
-					case 0:
-						y[i][j] = y[i][size - 1] - dy;
-						break;
-					default:
-						y[i][j] = y[i][j - 1] - h[j - 1] - dy;
-				}
-			}
-		}
-		
-		// Make skippable
-		
-		Gdx.input.setInputProcessor(new InputAdapter() {
+		stage = new Stage(new FitViewport(WORLD_WIDTH,WORLD_HEIGHT)) {
 			@Override
-			public boolean keyDown(int keyCode) {
-				skip();
+			public boolean keyDown(int keycode) {
+				// Do stuff
 				return true;
 			}
 			@Override
 			public boolean touchDown(int x, int y, int p, int b) {
-				skip();
+				// Do stuff
 				return true;
 			}
-		});
+		};
+		
+		// Create TextureActors to represent Nate, Alice, and Matthew
+		
+		portrait = new TextureActor[3];
+		for (int i = NATE; i <= ALICE; i++) {
+			portrait[i] = new TextureActor(game.texture(i));
+			portrait[i].setSize(GRID_STEP,GRID_STEP);
+			portrait[i].setX(0.5f*(WORLD_WIDTH - portrait[i].getWidth()));
+		}
+		
+		// Create TextActors to show text
+		
+		text = new TextActor[TEXT.length][];
+		for (int i = 0; i < TEXT.length; i++) {
+			text[i] = new TextActor[TEXT[i].length];
+			for (int j = 0; j < text[i].length; j++) {
+				text[i][j] = new TextActor(game.font(),game.fontShader(),TEXT[i][j]);
+				text[i][j].setColor(Color.BLUE);
+				text[i][j].setScale(0.5f);
+				text[i][j].setSize(WORLD_WIDTH,GRID_STEP);
+				text[i][j].align();
+				text[i][j].toggleTyping();
+			}
+		}
+		
+		// Layout
+		
+		dy = new float[TEXT.length];
+		for (int i = 0; i < TEXT.length; i++) {
+			dy[i] = (WORLD_HEIGHT - (TEXT[i].length + 1f)*GRID_STEP)/(TEXT[i].length + 2f);
+			text[i][0].setY(WORLD_HEIGHT - 2*dy[i] - portrait[PORTRAIT_INDEX[i]].getHeight() - text[i][0].getHeight());
+			for (int j = 1; j < text[i].length; j++) {
+				text[i][j].setY(text[i][j-1].getY() - dy[i] - text[i][j].getHeight());
+			}
+		}
+		portrait[NATE].setY(WORLD_HEIGHT - dy[0] - portrait[NATE].getHeight());
+		
+		// Initial view
+		
+		stage.addActor(portrait[NATE]);
+		stage.addActor(text[0][0]);
+		scene = 0;
+		line = 0;
+
 	}
 	
 	// Methods
-	
-	@Override
-	public void dispose() {
-	
-		font.dispose();
 		
-	}
-	
-	private void nextScreen() {game.setScreen(new TitleScreen(game));}
-	
 	@Override
 	public void render(float delta) {
 		
-		elapsedTime += delta;
-		if (elapsedTime > DURATION*TEXT[index].length) {
-			index++;
-			elapsedTime = 0f;
-		}
-        Gdx.gl.glClearColor(1,1,1,0);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if (index < TEXT.length) {
-			batch.begin();
-			int end = TEXT[index].length;
-			for (int i = 0; i < end; i++) {
-				if (elapsedTime > i*DURATION) {
-					font.draw(batch,TEXT[index][i],x[index][i],y[index][i]);
+		//  Logic
+		
+		stage.act(delta);
+		if (text[scene][line].finishedTyping()) {
+			if (line == text[scene].length - 1) {
+				if (scene == text.length - 1) {
+					if (delay > 0f) {
+						delay -= delta;
+					} else {
+						game.setScreen(new TitleScreen(game));
+					}
+				} else {
+					portrait[PORTRAIT_INDEX[scene]].remove();
+					for (int i = 0; i < text[scene].length; i++) text[scene][i].remove();
+					scene++;
+					line = 0;
+					portrait[PORTRAIT_INDEX[scene]].setY(WORLD_HEIGHT - dy[scene] - portrait[PORTRAIT_INDEX[scene]].getHeight());
+					stage.addActor(portrait[PORTRAIT_INDEX[scene]]);
+					stage.addActor(text[scene][0]);
 				}
+			} else {
+				line++;
+				stage.addActor(text[scene][line]);				
 			}
-			batch.draw(game.texture(TEXTURES[index]),x[index][end],y[index][end],TEXTURE_WIDTH,TEXTURE_HEIGHT);
-			batch.end();
-		} else {
-			nextScreen();
 		}
+
+		//  Rendering
+				
+		Gdx.gl.glClearColor(1f,1f,1f,1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.draw();
 		
 	}
 
-	private void skip() {
-		
-		if (index < TEXT.length - 1) {
-			index ++;
-			elapsedTime = 0f;
-		} else {
-			nextScreen();
-		}
-		
-	}
+	@Override
+	public void show() {Gdx.input.setInputProcessor(stage);}
 
 }

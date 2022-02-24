@@ -24,6 +24,10 @@ public class TextActor extends Actor implements Constants {
 	private float               drawX, drawY;
 	private HorizontalAlignment horizontal;
 	private VerticalAlignment   vertical;
+	private boolean             typing;         // If true, text appears one letter at a time when first drawn
+	private float               typingInterval; // Number of seconds until next letter appears during typing 
+	private int                 typingIndex;    // The index of the last letter typed
+	private float               elapsedTime;    // Number of seconds since the last letter was typed
 	
 	// Constructor
 	
@@ -34,22 +38,30 @@ public class TextActor extends Actor implements Constants {
 		this.text = text;
 		horizontal = HorizontalAlignment.CENTER;
 		vertical = VerticalAlignment.CENTER;
+		typing = false;
+		typingInterval = 0.125f;
+		if (text != null) {
+			typingIndex = text.length();
+		} else {
+			typingIndex = 0;
+		}
+		elapsedTime = 0f;
 		
 	}
 	
 	// Methods
 	
 	@Override
-	public void draw(Batch batch, float parentAlpha) {
-		
-		font.setColor(getColor());
-		font.getData().setScale(getScaleX());
-		batch.setShader(shader);
-		font.draw(batch,text,drawX,drawY);
-		batch.setShader(null);
-		font.getData().setScale(1f);
-		font.setColor(Color.WHITE);
+	public void act(float delta) {
 
+		elapsedTime += delta;		
+		if (typingIndex < text.length()) {
+			if (elapsedTime > typingInterval) {
+				typingIndex++;
+				elapsedTime = 0f;
+			}
+		}
+		
 	}
 
 	public void align() {
@@ -85,8 +97,26 @@ public class TextActor extends Actor implements Constants {
 				drawY = getY() + l.height;
 				break;
 		}
-		System.out.println("Draw at x = " + drawX + ", y = " + drawY);
 			
+	}
+	
+	@Override
+	public void draw(Batch batch, float parentAlpha) {
+		
+		font.setColor(getColor());
+		font.getData().setScale(getScaleX());
+		batch.setShader(shader);
+		font.draw(batch,text.substring(0,typingIndex),drawX,drawY);
+		batch.setShader(null);
+		font.getData().setScale(1f);
+		font.setColor(Color.WHITE);
+
+	}
+
+	public boolean finishedTyping() {
+		
+		return typing && typingIndex == text.length() && elapsedTime > 2*typingInterval;
+		
 	}
 
 	public void setHorizontalAlignment(HorizontalAlignment ha) {
@@ -103,7 +133,17 @@ public class TextActor extends Actor implements Constants {
 		
 	}
 
-	public void setText(String text) {this.text = text;}
+	public void setText(String text) {
+		
+		this.text = text;
+		if (typing) {
+			typingIndex = 1;
+			elapsedTime = 0f;
+		} else {
+			typingIndex = text.length();
+		}
+		
+	}
 	
 	public void setVerticalAlignment(VerticalAlignment va) {
 		
@@ -124,6 +164,18 @@ public class TextActor extends Actor implements Constants {
 		
 		super.setY(y);
 		align();
+		
+	}
+
+	public void toggleTyping() {
+		
+		typing = !typing;
+		if (typing) {
+			typingIndex = 1;
+			elapsedTime = 0f;
+		} else {
+			typingIndex =  text.length();
+		}
 		
 	}
 	

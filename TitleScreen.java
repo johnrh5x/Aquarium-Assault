@@ -5,9 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.DistanceFieldFont;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -62,6 +59,7 @@ public class TitleScreen extends ScreenAdapter implements Constants {
 		subtitle.setColor(0f,0f,1f,1f);
 		subtitle.setWidth(WORLD_WIDTH);
 		subtitle.setHeight(GRID_STEP);
+		subtitle.setScale(0.5f);
 		subtitle.setPosition(0f,title.getY() - GRID_STEP);
 		stage.addActor(subtitle);
 		
@@ -84,6 +82,7 @@ public class TitleScreen extends ScreenAdapter implements Constants {
 		tagline.setColor(0f,0f,0f,1f);
 		tagline.setWidth(WORLD_WIDTH);
 		tagline.setHeight(GRID_STEP);
+		tagline.setScaleX(0.5f);
 		tagline.setPosition(0,GRID_STEP);
 		stage.addActor(tagline); 
 		

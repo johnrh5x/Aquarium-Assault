@@ -94,21 +94,17 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		
 		/* Create an actor to show the score */
 		
-		System.out.println("scoreKeeper");
 		scoreKeeper = new TextActor(game.font(),game.fontShader(),"Score: 0");
 		scoreKeeper.setWidth(WORLD_WIDTH/2);
 		scoreKeeper.setHeight(GRID_STEP);
-		scoreKeeper.setHorizontalAlignment(TextActor.HorizontalAlignment.LEFT);
 		scoreKeeper.setPosition(0f, WORLD_HEIGHT - GRID_STEP);
 		stage.addActor(scoreKeeper);
 		
 		/* Create an actor to show the time */
 		
-		System.out.println("timeKeeper");
 		timeKeeper = new TimeKeeper(game.font(),game.fontShader(),60f);
 		timeKeeper.setWidth(WORLD_WIDTH/2);
 		timeKeeper.setHeight(GRID_STEP);
-		timeKeeper.setHorizontalAlignment(TextActor.HorizontalAlignment.LEFT);
 		timeKeeper.setPosition(WORLD_WIDTH/2, WORLD_HEIGHT - GRID_STEP);
 		stage.addActor(timeKeeper);
 		
@@ -153,6 +149,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		
 		for (Patron p: patrons) score += p.incrementScore();
 		scoreKeeper.setText("Score: " + score);
+		scoreKeeper.align();
 		
 		// Check state of Matthew & dogfish
 		

@@ -38,7 +38,7 @@ public class AquariumAssault extends Game implements Constants {
 						
 		// Start the game
 		
-		setScreen(new TitleScreen(this));
+		setScreen(new IntroScreen(this));
 
 	}
 	
