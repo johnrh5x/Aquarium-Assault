@@ -69,16 +69,20 @@ public class Nate extends TextureActor {
 		canMove[RIGHT] = c < GRID_COLUMNS - 1;
 		canMove[UP] = r < GRID_ROWS - 1;
 		
-		// Check for collisions with Matthew and patrons
+		// Check for collisions with Matthew and patrons (if present)
 		
 		for (int i = DOWN; i <= UP; i++) {
 			if (canMove[i]) {			
-				canMove[i] = !(matthew.getRow() == r + ROW_ADJ[i] && matthew.getColumn() == c + COL_ADJ[i]);
+				if (matthew != null) {
+					canMove[i] = !(matthew.getRow() == r + ROW_ADJ[i] && matthew.getColumn() == c + COL_ADJ[i]);
+				}
 				if (canMove[i]) {
-					for (Patron p: patrons) {
-						if (!p.isOffstage()) {
-							canMove[i] = !(p.getRow() == r + ROW_ADJ[i] && p.getColumn() == c + COL_ADJ[i]);
-							if (!canMove[i]) break; 
+					if (patrons != null) {
+						for (Patron p: patrons) {
+							if (!p.isOffstage()) {
+								canMove[i] = !(p.getRow() == r + ROW_ADJ[i] && p.getColumn() == c + COL_ADJ[i]);
+								if (!canMove[i]) break; 
+							}
 						}
 					}
 				}

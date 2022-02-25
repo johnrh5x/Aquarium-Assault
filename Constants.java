@@ -7,9 +7,10 @@ public interface Constants {
 	public static final int NATE       = 0;
 	public static final int MATTHEW    = 1;
 	public static final int ALICE      = 2;
-	public static final int BACKGROUND = 3;
-	public static final int FISHTANK   = 4;
-	public static final int DOGFISH    = 5;
+	public static final int DOGFISH    = 3;
+	public static final int BACKGROUND = 4;
+	public static final int FISHTANK   = 5;
+	
 
 	public static final int GRID_ROWS    = 13;
 	public static final int GRID_COLUMNS = 11;

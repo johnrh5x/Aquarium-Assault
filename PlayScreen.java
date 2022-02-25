@@ -171,7 +171,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		
 		if (timeKeeper.timeExpired()) {
 			System.out.println("Time's up!");
-			game.setScreen(new CreditsScreen(game));
+			game.setScreen(new TitleScreen(game));
 		}
 		
         // Clear screen (black)
