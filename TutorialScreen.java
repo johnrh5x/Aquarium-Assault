@@ -19,7 +19,8 @@ public class TutorialScreen extends ScreenAdapter implements Constants {
 	
 	private static final String[][] TEXT = {{"This patron could be a tank-tapper.","Tell her the rules before something awful happens!"},
                                             {"This patron is definitely a tank-tapper.","Don't let her get away with it!"},
-                                            {"Mr. Basil Pesto is running away with the dogfish.","Catch him, or you'll be sacked!"}};
+                                            {"Mr. Basil Pesto is running away with the dogfish.","Catch him, or you'll be sacked!"},
+                                            {"Tap an arrow key, W, A, S, or D to move.","Press Space to pause.","Press ESC to return to the main menu."}};
 	
 	private AquariumAssault game;
 	private Stage           stage;
@@ -39,12 +40,12 @@ public class TutorialScreen extends ScreenAdapter implements Constants {
 		stage = new Stage(new FitViewport(WORLD_WIDTH,WORLD_HEIGHT)) {
 			@Override
 			public boolean keyDown(int keycode) {
-				// Do stuff
+				returnToTitle();
 				return true;
 			}
 			@Override
 			public boolean touchDown(int x, int y, int p, int b) {
-				// Do stuff
+				returnToTitle();
 				return true;
 			}
 		};
@@ -60,16 +61,6 @@ public class TutorialScreen extends ScreenAdapter implements Constants {
 			actor[i].setSize(GRID_STEP,GRID_STEP);
 		}
 		
-		// Movement instructions
-		
-		TextActor movement = new TextActor(game.font(),game.fontShader(),"Press an arrow key, W, A, S, or D, to move.");
-		movement.setScale(0.5f);
-		movement.setColor(Color.BLACK);
-		movement.setSize(WORLD_WIDTH, GRID_STEP);
-		movement.setPosition(0f, WORLD_HEIGHT - GRID_STEP);
-		movement.align();
-		stage.addActor(movement);
-		
 		// Scene instructions
 		
 		text = new TextActor[TEXT.length][];
@@ -79,7 +70,7 @@ public class TutorialScreen extends ScreenAdapter implements Constants {
 				text[i][j] = new TextActor(game.font(),game.fontShader(),TEXT[i][j]);
 				text[i][j].setSize(WORLD_WIDTH,GRID_STEP);
 				text[i][j].setX(0f);
-				text[i][j].setY((1 - j)*GRID_STEP);
+				text[i][j].setY(WORLD_HEIGHT - (j + 1)*GRID_STEP);
 				text[i][j].setScale(0.5f);
 				text[i][j].setColor(Color.BLACK);
 				text[i][j].align();
@@ -89,9 +80,8 @@ public class TutorialScreen extends ScreenAdapter implements Constants {
 		
 		// Set the first scene
 		
-		actor[NATE].setGridPosition(7,6);
-		actor[ALICE].setGridPosition(7,4);
-		stage.addActor(actor[NATE]);
+		actor[ALICE].setGridPosition(GRID_ROWS - 3, 5);
+		actor[NATE].setGridPosition(GRID_ROWS - 7, 5);
 		stage.addActor(actor[ALICE]);
 		stage.addActor(text[0][0]);
 		
@@ -102,6 +92,8 @@ public class TutorialScreen extends ScreenAdapter implements Constants {
 	@Override
 	public void dispose() {stage.dispose();}
 	
+	public void returnToTitle() {game.setScreen(new TitleScreen(game));}
+	
 	@Override
 	public void render(float delta) {
 		
@@ -109,9 +101,10 @@ public class TutorialScreen extends ScreenAdapter implements Constants {
 		
 		stage.act(delta);
 		switch (scene) {
-			case 0: scene0(delta); break;
-			case 1: scene1(delta); break;
-			case 2: scene2(delta); break;
+			case 0:  scene0(delta); break;
+			case 1:  scene1(delta); break;
+			case 2:  scene2(delta); break;
+			default: scene3(delta); break;
 		}
 		
 		// Rendering
@@ -124,153 +117,131 @@ public class TutorialScreen extends ScreenAdapter implements Constants {
 	
 	private void scene0(float delta) {
 		
-		/* In this scene, Nate moves toward Alice, turning her green.
-		 * He then returns to his initial position and Alice returns
-		 * to the default color.  The animation loops until all the
-		 * text at the bottom of the screen has been displayed. */
-		
-		if (!text[0][1].finishedTyping()) {
-			
-			/* Display an animation in the middle of the screen while
-			 * instructions type out below. */
-			
+		if (text[0][0].finishedTyping() && text[0][1].getStage() == null) {
+			stage.addActor(text[0][1]);
+		}
+		if (text[0][1].finishedTyping() && actor[NATE].getStage() == null) {
+			stage.addActor(actor[NATE]);
+		}
+		if (actor[NATE].getStage() != null && !actor[NATE].isAdjacentTo(actor[ALICE])) {
 			elapsedTime += delta;
 			if (elapsedTime > 0.5f) {
-				if (actor[NATE].isAdjacentTo(actor[ALICE])) {
-					actor[ALICE].setColor(Color.WHITE);
-					actor[NATE].moveRight();				
-				} else {
-					actor[NATE].moveLeft();
-					if (actor[NATE].isAdjacentTo(actor[ALICE])) {
-						actor[ALICE].setColor(Color.GREEN);
-					}
-				}
+				actor[NATE].moveUp();
 				elapsedTime = 0f;
+				if (actor[NATE].isAdjacentTo(actor[ALICE])) {
+					actor[ALICE].setColor(Color.GREEN);
+				}
 			}
-			if (text[0][0].finishedTyping() && text[0][1].getStage() == null) {
-				stage.addActor(text[0][1]);
+		}
+		if (actor[NATE].isAdjacentTo(actor[ALICE])) {
+			if (elapsedTime < 2f) {
+				elapsedTime += delta;
+			} else {
+				text[0][0].remove();
+				text[0][1].remove();
+				actor[NATE].remove();
+				actor[NATE].setGridPosition(GRID_ROWS - 7, 5);
+				actor[ALICE].setColor(Color.RED);
+				elapsedTime = 0f;
+				scene = 1;
+				stage.addActor(text[1][0]);
 			}
-			
-		} else if (elapsedTime < 2f) {
-			
-			/* Wait a bit before switching to the next scene. */
-			
-			elapsedTime += delta;
-			
-		} else {
-			
-			/* Set up the next scene. */
-			
-			text[0][0].remove();
-			text[0][1].remove();
-			stage.addActor(text[1][0]);
-			actor[NATE].setGridPosition(8,5);
-			actor[ALICE].setGridPosition(6,5);
-			actor[ALICE].setColor(Color.RED);
-			elapsedTime = 0f;
-			scene = 1;
-			
 		}
 		
 	}
 	
 	private void scene1(float delta) {
-		
-		if (!text[1][1].finishedTyping()) {
-			
-			/* In this animation, Nate moves down towards a red Alice.
-			 * When he reaches her, she turns green and the animation
-			 * loops. */
-			 
+	
+		if (text[1][0].finishedTyping() && text[1][1].getStage() == null) {
+			stage.addActor(text[1][1]);
+		}
+		if (text[1][1].finishedTyping() && actor[NATE].getStage() == null) {
+			stage.addActor(actor[NATE]);
+		}
+		if (actor[NATE].getStage() != null && !actor[NATE].isAdjacentTo(actor[ALICE])) {
 			elapsedTime += delta;
 			if (elapsedTime > 0.5f) {
-				if (actor[NATE].isAdjacentTo(actor[ALICE])) {
-					actor[ALICE].setColor(Color.RED);
-					actor[NATE].moveUp();
-				} else {
-					actor[NATE].moveDown();
-					if (actor[NATE].isAdjacentTo(actor[ALICE])) {
-						actor[ALICE].setColor(Color.GREEN);
-					}
-				}
-				if (text[1][0].finishedTyping() && text[1][1].getStage() == null) {
-					stage.addActor(text[1][1]);
-				}
+				actor[NATE].moveUp();
 				elapsedTime = 0f;
+				if (actor[NATE].isAdjacentTo(actor[ALICE])) {
+					actor[ALICE].setColor(Color.GREEN);
+				}
 			}
-			
-		} else if (elapsedTime < 2f) {
-			
-			// Delay a bit
-			
-			elapsedTime += delta;
-			
-		} else {
-			
-			// Set the next scene
-			
-			text[1][0].remove();
-			text[1][1].remove();
-			actor[ALICE].remove();
-			stage.addActor(text[2][0]);
-			actor[NATE].setGridPosition(7,4);
-			actor[MATTHEW].setGridPosition(6,6);
-			actor[DOGFISH].setGridPosition(7,6);
-			stage.addActor(actor[MATTHEW]);
-			stage.addActor(actor[DOGFISH]);
-			scene = 2;
-			elapsedTime = 0f;
-			
+		}
+		if (actor[NATE].isAdjacentTo(actor[ALICE])) {
+			if (elapsedTime < 2f) {
+				elapsedTime += delta;
+			} else {
+				text[1][0].remove();
+				text[1][1].remove();
+				actor[NATE].remove();
+				actor[ALICE].remove();
+				actor[DOGFISH].setGridPosition(GRID_ROWS - 3, 5);
+				actor[MATTHEW].setGridPosition(GRID_ROWS - 4, 5);
+				actor[NATE].setGridPosition(GRID_ROWS - 7, 1);
+				elapsedTime = 0f;
+				scene = 2;
+				stage.addActor(text[2][0]);
+				stage.addActor(actor[DOGFISH]);
+				stage.addActor(actor[MATTHEW]);
+			}
 		}
 		
 	}
 	
 	private void scene2(float delta) {
-		
-		if (!text[2][1].finishedTyping()) {
-			
-			/* In this animation, Nate moves right to intercept
-			 * Matthew and the dogfish, who are moving up.  When
-			 * Nate catches up to Matthew, the animation loops. */
-			
-			elapsedTime += delta; 
+
+		if (text[2][0].finishedTyping() && text[2][1].getStage() == null) {
+			stage.addActor(text[2][1]);
+		}
+		if (text[2][1].finishedTyping() && actor[NATE].getStage() == null) {
+			stage.addActor(actor[NATE]);
+		}
+		if (actor[NATE].getStage() != null && !actor[NATE].isAdjacentTo(actor[MATTHEW])) {
+			elapsedTime += delta;
 			if (elapsedTime > 0.5f) {
-				if (actor[NATE].isAdjacentTo(actor[MATTHEW])) {
-					actor[NATE].moveLeft();
-					actor[MATTHEW].moveDown();
-					actor[DOGFISH].moveDown();
-				} else {
-					actor[NATE].moveRight();
-					actor[MATTHEW].moveUp();
-					actor[DOGFISH].moveUp();
-				}
-				if (text[2][0].finishedTyping() && text[2][1].getStage() == null) {
-					stage.addActor(text[2][1]);
-				}
+				actor[NATE].moveRight();
+				actor[MATTHEW].moveDown();
+				actor[DOGFISH].moveDown();
 				elapsedTime = 0f;
 			}
-			
-		} else if (elapsedTime < 2f) {
-			
-			// Delay a bit
-			
-			elapsedTime += delta;
-			
-		} else {
-			
-			// Return to the title screen
-			
-			game.setScreen(new TitleScreen(game));
-			
+		}
+		if (actor[NATE].isAdjacentTo(actor[MATTHEW])) {
+			if (elapsedTime < 2f) {
+				elapsedTime += delta;
+			} else {
+				text[2][0].remove();
+				text[2][1].remove();
+				actor[NATE].remove();
+				actor[MATTHEW].remove();
+				actor[DOGFISH].remove();
+				stage.addActor(text[3][0]);
+				elapsedTime = 0f;
+				scene = 3;
+			}
+		}
+		
+	}
+	
+	private void scene3(float delta) {
+	
+		if (text[3][0].finishedTyping() && text[3][1].getStage() == null) {
+			stage.addActor(text[3][1]);
+		}
+		if (text[3][1].finishedTyping() && text[3][2].getStage() == null) {
+			stage.addActor(text[3][2]);
+		}
+		if (text[3][2].finishedTyping()) {
+			if (elapsedTime < 2f) {
+				elapsedTime += delta;
+			} else {
+				returnToTitle();
+			}
 		}
 		
 	}
 	
 	@Override
-	public void show() {
-		
-		Gdx.input.setInputProcessor(stage);
-		
-	}
+	public void show() {Gdx.input.setInputProcessor(stage);}
 	
 }
