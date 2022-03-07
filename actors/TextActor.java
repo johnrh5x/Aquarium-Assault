@@ -119,6 +119,8 @@ public class TextActor extends Actor implements Constants {
 		
 	}
 
+	public String getText() {return text;}
+
 	public void setHorizontalAlignment(HorizontalAlignment ha) {
 		
 		horizontal = ha;

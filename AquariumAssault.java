@@ -14,6 +14,8 @@ public class AquariumAssault extends Game implements Constants {
 	private Texture[]         textures;
 	private DistanceFieldFont font;
 	private ShaderProgram     fontShader;
+	private int               score;
+	private boolean           dogfish;
 	
 	// Methods
 	
@@ -35,10 +37,15 @@ public class AquariumAssault extends Game implements Constants {
 		BitmapFont temp = new BitmapFont();
 		font = new DistanceFieldFont(temp.getData(),temp.getRegions(),false);
 		fontShader = font.createDistanceFieldShader();
+		
+		// Initialize results variables
+		
+		score = 0;
+		dogfish = false;
 						
 		// Start the game
 		
-		setScreen(new TutorialScreen(this));
+		setScreen(new PlayScreen(this));
 
 	}
 	
@@ -54,6 +61,14 @@ public class AquariumAssault extends Game implements Constants {
 	public DistanceFieldFont font() {return font;}
 	
 	public ShaderProgram fontShader() {return fontShader;}
+
+	public int getScore() {return score;}
+
+	public boolean lostDogfish() {return dogfish;}
+
+	public void setLostDogfish(boolean b) {dogfish = b;}
+
+	public void setScore(int score) {this.score = score;}
 
 	public Texture texture(int i) {
 		

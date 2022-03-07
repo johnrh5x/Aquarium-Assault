@@ -119,6 +119,13 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		
 	}
 	
+	private void goToScoreScreen() {
+		
+		game.setScore(score);
+		game.setScreen(new ScoreScreen(game));
+		
+	}
+	
 	@Override
 	public void render(float delta) {
 
@@ -163,16 +170,14 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 			boolean escape = matthew.getRow() == GRID_ROWS - 1;
 			boolean capture = nate.isAdjacentTo(matthew);
 			if (escape || capture) {
-				game.setScreen(new CreditsScreen(game));
+				game.setLostDogfish(escape);
+				goToScoreScreen();
 			}
 		}
 		
 		// Out of time?
 		
-		if (timeKeeper.timeExpired()) {
-			System.out.println("Time's up!");
-			game.setScreen(new TitleScreen(game));
-		}
+		if (timeKeeper.timeExpired()) goToScoreScreen();
 		
         // Clear screen (black)
         
