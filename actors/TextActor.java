@@ -39,7 +39,7 @@ public class TextActor extends Actor implements Constants {
 		horizontal = HorizontalAlignment.CENTER;
 		vertical = VerticalAlignment.CENTER;
 		typing = false;
-		typingInterval = 0.125f;
+		typingInterval = 0.09375f;
 		if (text != null) {
 			typingIndex = text.length();
 		} else {
@@ -72,9 +72,7 @@ public class TextActor extends Actor implements Constants {
 		 * fact and to make positioning TextActors consistent with the
 		 * way that we position TextureActors. */
 		
-		font.getData().setScale(getScaleX());
-		GlyphLayout l = new GlyphLayout(font,text);
-		font.getData().setScale(1f);
+		GlyphLayout l = getGlyphLayout();
 		switch (horizontal) {
 			case LEFT:
 				drawX = getX();
@@ -118,6 +116,17 @@ public class TextActor extends Actor implements Constants {
 		return typing && typingIndex == text.length() && elapsedTime > 2*typingInterval;
 		
 	}
+
+	public GlyphLayout getGlyphLayout() {
+		
+		font.getData().setScale(getScaleX());
+		GlyphLayout output = new GlyphLayout(font,text);
+		font.getData().setScale(1f);
+		return output;
+		
+	}
+
+	public DistanceFieldFont getFont() {return font;}
 
 	public String getText() {return text;}
 

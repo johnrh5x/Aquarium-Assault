@@ -90,6 +90,22 @@ public class ScoreScreen extends ScreenAdapter implements Constants {
 	@Override
 	public void dispose() {stage.dispose();}
 
+	private void nextScreen() {
+	
+		if (inputFlag) {
+			game.setScore(0);
+			game.setLostDogfish(false);
+			game.setScreen(new CreditsScreen(game));
+		} else {
+			inputFlag = true;
+			for (TextActor t: line) {
+				t.toggleTyping();
+				if (t.getStage() == null) stage.addActor(t);
+			}
+		}
+		
+	}
+
 	@Override
 	public void render(float delta) {
 		
@@ -107,21 +123,8 @@ public class ScoreScreen extends ScreenAdapter implements Constants {
 		
 	}
 
-	private void nextScreen() {
-	
-		if (inputFlag) {
-			game.setScore(0);
-			game.setLostDogfish(false);
-			game.setScreen(new CreditsScreen(game));
-		} else {
-			inputFlag = true;
-			for (TextActor t: line) {
-				t.toggleTyping();
-				if (t.getStage() == null) stage.addActor(t);
-			}
-		}
-		
-	}
+	@Override
+	public void resize(int width, int height) {stage.getViewport().update(width,height);}
 
 	@Override
 	public void show() {Gdx.input.setInputProcessor(stage);}

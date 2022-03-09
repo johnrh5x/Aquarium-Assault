@@ -113,11 +113,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	// Methods
 
 	@Override
-	public void dispose() {
-	
-		stage.dispose();
-		
-	}
+	public void dispose() {stage.dispose();}
 	
 	private void goToScoreScreen() {
 		

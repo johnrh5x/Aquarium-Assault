@@ -40,13 +40,13 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 		stage = new Stage(new FitViewport(WORLD_WIDTH,WORLD_HEIGHT)) {
 			@Override
 			public boolean keyDown(int keycode) {
-				// Do stuff
-				return true;
+				titleScreen();
+				return false;
 			}
 			@Override
 			public boolean touchDown(int x, int y, int p, int b) {
-				// Do stuff
-				return true;
+				titleScreen();
+				return false;
 			}
 		};
 		
@@ -96,6 +96,8 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 	}
 	
 	// Methods
+	
+	private void titleScreen() {game.setScreen(new TitleScreen(game));}
 		
 	@Override
 	public void render(float delta) {
@@ -133,6 +135,9 @@ public class IntroScreen extends ScreenAdapter implements Constants {
         stage.draw();
 		
 	}
+
+	@Override
+	public void resize(int width, int height) {stage.getViewport().update(width,height);}
 
 	@Override
 	public void show() {Gdx.input.setInputProcessor(stage);}
