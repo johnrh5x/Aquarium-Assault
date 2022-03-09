@@ -117,6 +117,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	
 	private void goToScoreScreen() {
 		
+		Patron.clearColumns();
 		game.setScore(score);
 		game.setScreen(new ScoreScreen(game));
 		

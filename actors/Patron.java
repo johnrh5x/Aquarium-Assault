@@ -141,6 +141,12 @@ public class Patron extends TextureActor {
 		
 	}
 	
+	public static void clearColumns() {
+		
+		for (int i = 0; i < emptyColumn.length; i++) emptyColumn[i] = true;
+		
+	}
+	
 	public void descend() {
 
 		int r = getRow();
@@ -183,8 +189,11 @@ public class Patron extends TextureActor {
 				}
 			}
 			if (left == -1 && right == -1) {
-				System.out.println("Something has gone horribly wrong.");
-				remove();
+				System.out.println("Something has gone horribly wrong with a patron in column " + getColumn() + ".");
+				for (int i = 0; i < emptyColumn.length; i++) {
+					System.out.println("Column " + i + " is empty: " + emptyColumn[i]);
+				}
+				System.exit(1);
 			} else if (left == -1 && right != -1) {
 				moveRight();
 			} else if (left != -1 && right == -1) {
