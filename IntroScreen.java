@@ -27,7 +27,7 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 	private TextActor[][]   text;
 	private float[]         dy; // Used to compute coordinates for portraits and text
 	private int             scene, line;
-	private float           delay = 3f;
+	private float           delay = 2f;
 	
 	// Constructor
 	
@@ -55,7 +55,7 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 		portrait = new TextureActor[3];
 		for (int i = NATE; i <= ALICE; i++) {
 			portrait[i] = new TextureActor(game.texture(i));
-			portrait[i].setSize(GRID_STEP,GRID_STEP);
+			portrait[i].setSize(2*GRID_STEP,2*GRID_STEP);
 			portrait[i].setX(0.5f*(WORLD_WIDTH - portrait[i].getWidth()));
 		}
 		
@@ -78,10 +78,9 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 		
 		dy = new float[TEXT.length];
 		for (int i = 0; i < TEXT.length; i++) {
-			dy[i] = (WORLD_HEIGHT - (TEXT[i].length + 1f)*GRID_STEP)/(TEXT[i].length + 2f);
-			text[i][0].setY(WORLD_HEIGHT - 2*dy[i] - portrait[PORTRAIT_INDEX[i]].getHeight() - text[i][0].getHeight());
-			for (int j = 1; j < text[i].length; j++) {
-				text[i][j].setY(text[i][j-1].getY() - dy[i] - text[i][j].getHeight());
+			dy[i] = 0.5f*(WORLD_HEIGHT - GRID_STEP*TEXT[i].length - portrait[PORTRAIT_INDEX[scene]].getHeight());
+			for (int j = 0; j < TEXT[i].length; j++) {
+				text[i][j].setY(WORLD_HEIGHT - dy[i] - portrait[PORTRAIT_INDEX[scene]].getHeight() - (j + 1)*GRID_STEP);
 			}
 		}
 		portrait[NATE].setY(WORLD_HEIGHT - dy[0] - portrait[NATE].getHeight());
@@ -107,20 +106,21 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 		stage.act(delta);
 		if (text[scene][line].finishedTyping()) {
 			if (line == text[scene].length - 1) {
-				if (scene == text.length - 1) {
-					if (delay > 0f) {
-						delay -= delta;
-					} else {
-						game.setScreen(new TitleScreen(game));
-					}
+				if (delay > 0f) {
+					delay -= delta;
 				} else {
-					portrait[PORTRAIT_INDEX[scene]].remove();
-					for (int i = 0; i < text[scene].length; i++) text[scene][i].remove();
-					scene++;
-					line = 0;
-					portrait[PORTRAIT_INDEX[scene]].setY(WORLD_HEIGHT - dy[scene] - portrait[PORTRAIT_INDEX[scene]].getHeight());
-					stage.addActor(portrait[PORTRAIT_INDEX[scene]]);
-					stage.addActor(text[scene][0]);
+					if (scene == text.length - 1) {
+						game.setScreen(new TitleScreen(game));
+					} else {
+						portrait[PORTRAIT_INDEX[scene]].remove();
+						for (int i = 0; i < text[scene].length; i++) text[scene][i].remove();
+						scene++;
+						line = 0;
+						portrait[PORTRAIT_INDEX[scene]].setY(WORLD_HEIGHT - dy[scene] - portrait[PORTRAIT_INDEX[scene]].getHeight());
+						stage.addActor(portrait[PORTRAIT_INDEX[scene]]);
+						stage.addActor(text[scene][0]);
+						delay = 2f;
+					}
 				}
 			} else {
 				line++;
