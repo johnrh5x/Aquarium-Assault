@@ -6,11 +6,9 @@
  * Patron behavior is described by the Phase enumeration.  A DESCENDING
  * patron moves downward if there is no other patron waiting at the
  * tank directly below her and laterally towards the nearest unoccupied
- * column otherwise.  A WAITING patron is interacting with the tank.  At
- * present, the patron waits for a certain number of turns.  (Later, the
- * patron will wait for the dogfish to pass by a certain number of
- * times.)  An EXITING patron is moving toward the nearest vertical edge
- * of the screen and an OFFSTAGE patron has reached the edge and has
+ * column otherwise.  A WAITING patron is interacting with the tank.  An
+ * EXITING patron is moving toward the nearest vertical edge of the 
+ * screen and an OFFSTAGE patron has reached the edge and has 
  * temporarily been removed from the scenegraph.
  * 
  * Patron interaction with the tank is described by the State
@@ -18,8 +16,7 @@
  * DEFAULT state.  A patron who is intercepted by the player before she
  * reaches the tank is in the INTERCEPTED state.  A patron who reaches
  * the tank in the DEFAULT state has a random chance each turn of
- * transitioning to the TAPPING state.  (Later, each turn the patron
- * spends in the TAPPING state will cost the player valuable points.)  */
+ * transitioning to the TAPPING state.  */
 
 package john.aquariumassault.actors;
 
@@ -250,6 +247,8 @@ public class Patron extends TextureActor {
 	}
 	
 	public boolean isDefault() {return state == State.DEFAULT;}
+	
+	public boolean isDescending() {return phase == Phase.DESCENDING;}
 	
 	public boolean isOffstage() {return phase == Phase.OFFSTAGE;}
 

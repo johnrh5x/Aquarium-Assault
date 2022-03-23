@@ -126,14 +126,34 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	@Override
 	public void render(float delta) {
 
-		// Game logic
+		// Update actor's information
 		
 		Patron.setMatthewPosition(matthew);
 		Patron.setNatePosition(nate);
 		Patron.setFishPosition(dogfish);
 		nate.getValidMoves(matthew, patrons);
 		matthew.getValidMoves(nate, patrons, dogfish);
+		
+		// Move actors
+		
 		stage.act(delta);
+		
+		// Handle actor overlaps
+		
+		for (int i = 0; i < patrons.length; i++) {
+			if (!patrons[i].isOffstage()) {
+				boolean revert = patrons[i].isInSamePosition(nate) || patrons[i].isInSamePosition(matthew);
+				if (!revert) {
+					if (patrons[i].isDescending()) {
+						for (int j = i + 1; j < patrons.length; j++) {
+							if (!patrons[j].isOffstage()) revert = patrons[i].isInSamePosition(patrons[j]);
+							if (revert) break;
+						}
+					}
+				}
+				if (revert) patrons[i].revertToLastPosition();
+			}
+		}
 		
 		// Add new patron
 		

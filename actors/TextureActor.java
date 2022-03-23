@@ -19,7 +19,7 @@ public class TextureActor extends Actor implements Constants {
 	public static final int[] COL_ADJ = {0,-1,1,0};
 
 	private Texture   texture;
-	private int       row, column;
+	private int       row, column, lastRow, lastColumn;
 	
 	// Constructor(s)
 	
@@ -30,6 +30,8 @@ public class TextureActor extends Actor implements Constants {
 		setSize(GRID_STEP,GRID_STEP);
 		row = 0;
 		column = 0;
+		lastRow = 0;
+		lastColumn = 0;
 		
 	}
 	
@@ -49,49 +51,71 @@ public class TextureActor extends Actor implements Constants {
 	
 	public int getColumn() {return column;}
 	
+	public int getLastRow() {return lastRow;}
+	
+	public int getLastColumn() {return lastColumn;}
+	
 	public Texture getTexture() {return texture;}
 
 	public boolean isAdjacentTo(TextureActor actor) {
 		
-		int dx = getColumn() - actor.getColumn();
-		int dy = getRow() - actor.getRow();
-		return dx*dx + dy*dy <= 1;
+		int dx = this.column - actor.getColumn();
+		int dy = this.row - actor.getRow();
+		return dx*dx + dy*dy == 1;
 		
 	}
 
 	public boolean isAdjacentTo(int row, int column) {
+
+		int dx = this.column - column;		
+		int dy = this.row - row;
+		return dx*dx + dy*dy == 1;
 		
-		int dx = this.row - row;
-		int dy = this.column - column;
-		return dx*dx + dy*dy <= 1;
+	}
+
+	public boolean isInSamePosition(TextureActor actor) {
+		
+		return row == actor.getRow() && column == actor.getColumn();
 		
 	}
 
 	public void moveDown() {
 		
-		int r = getRow();
-		if (r > 0) setRow(r - 1);
+		if (row > 0) {
+			lastRow = row;
+			row--;
+			setY(GRID_STEP*row);
+		}
 		
 	}
 	
 	public void moveLeft() {
 		
-		int c = getColumn();
-		if (c > 0) setColumn(c - 1);
+		if (column > 0) {
+			lastColumn = column;
+			column--;
+			setX(GRID_STEP*column);
+		}
 		
 	}
 	
 	public void moveRight() {
 	
-		int c = getColumn();
-		if (c < GRID_COLUMNS - 1) setColumn(c + 1);
+		if (column < GRID_COLUMNS - 1) {
+			lastColumn = column;
+			column++;
+			setX(GRID_STEP*column);
+		}
 		
 	}
 	
 	public void moveUp() {
 		
-		int r = getRow();
-		if (r < GRID_ROWS - 1) setRow(r + 1);
+		if (row < GRID_ROWS - 1) {
+			lastRow = row;
+			row++;
+			setY(GRID_STEP*row);
+		}
 		
 	}
 	
@@ -104,16 +128,26 @@ public class TextureActor extends Actor implements Constants {
 		
 	}
 	
+	public void revertToLastPosition() {
+		
+		row = lastRow;
+		column = lastColumn;
+		setPosition(GRID_STEP*column,GRID_STEP*row);
+		
+	}
+	
 	public void setColumn(int column) {
 		
+		lastColumn = this.column;
 		this.column = column;
 		setX(column*GRID_STEP);
-		//reportPosition();
 		
 	}
 	
 	public void setGridPosition(int row, int column) {
 		
+		lastRow = this.row;
+		lastColumn = this.column;
 		this.row = row;
 		this.column = column;
 		setX(column*GRID_STEP);
@@ -121,8 +155,13 @@ public class TextureActor extends Actor implements Constants {
 		
 	}
 	
+	public void setLastColumn(int c) {lastColumn = c;}
+	
+	public void setLastRow(int r) {lastRow = r;}
+	
 	public void setRow(int row) {
 		
+		lastRow = this.row;
 		this.row = row;
 		setY(row*GRID_STEP);
 		
