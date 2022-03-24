@@ -1,6 +1,7 @@
 package john.aquariumassault;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -31,17 +32,27 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	private int             score;
 	private TextActor       scoreKeeper;
 	private TimeKeeper      timeKeeper;
+	private boolean         paused = false;
+	private boolean         over = false;
 	
 	// Constructor(s)
 	
 	public PlayScreen(AquariumAssault game) {
 		
-		this.game     = game;
+		this.game = game;
 		
-		/* Create a stage to hold the actors and center the camera in
-		 * the middle of the stage. */
+		/* Create a stage to hold the actors, configure the stage so
+		 * that play pauses when the player hits ESC, and center the 
+		 * camera in the middle of the stage. */
 		
-		stage = new Stage(new FitViewport(WORLD_WIDTH,WORLD_HEIGHT));		
+		stage = new Stage(new FitViewport(WORLD_WIDTH,WORLD_HEIGHT)) {
+			@Override
+			public boolean keyDown(int keycode) {
+				if (!paused && !over) super.keyDown(keycode);          // Allow normal keyboard input while game is unpaused and not yet over
+				if (!over && keycode == Keys.ESCAPE) paused = !paused; // Toggle pause while game is not yet over
+				return true;
+			}
+		};		
 		stage.getCamera().position.x = WORLD_WIDTH/2;
 		stage.getCamera().position.y = WORLD_HEIGHT/2;
 		stage.getCamera().update();
@@ -86,7 +97,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		/* Set timers */
 		
 		newPatronInterval = 2f;
-		elapsedTime = newPatronInterval;
+		elapsedTime = newPatronInterval; // Add a new patron immediately
 		
 		/* Initialize the score */
 		
@@ -126,75 +137,93 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	@Override
 	public void render(float delta) {
 
-		// Update actor's information
-		
-		Patron.setMatthewPosition(matthew);
-		Patron.setNatePosition(nate);
-		Patron.setFishPosition(dogfish);
-		nate.getValidMoves(matthew, patrons);
-		matthew.getValidMoves(nate, patrons, dogfish);
-		
-		// Move actors
-		
-		stage.act(delta);
-		
-		// Handle actor overlaps
-		
-		for (int i = 0; i < patrons.length; i++) {
-			if (!patrons[i].isOffstage()) {
-				boolean revert = patrons[i].isInSamePosition(nate) || patrons[i].isInSamePosition(matthew);
-				if (!revert) {
-					if (patrons[i].isDescending()) {
-						for (int j = i + 1; j < patrons.length; j++) {
-							if (!patrons[j].isOffstage()) revert = patrons[i].isInSamePosition(patrons[j]);
-							if (revert) break;
+		if (!paused) {
+
+			if (!over) {
+
+				// Update actor's information
+				
+				Patron.setMatthewPosition(matthew);
+				Patron.setNatePosition(nate);
+				Patron.setFishPosition(dogfish);
+				nate.getValidMoves(matthew, patrons);
+				matthew.getValidMoves(nate, patrons, dogfish);
+				
+				// Move actors
+				
+				stage.act(delta);
+				
+				// Handle actor overlaps
+				
+				for (int i = 0; i < patrons.length; i++) {
+					if (!patrons[i].isOffstage()) {
+						boolean revert = patrons[i].isInSamePosition(nate) || patrons[i].isInSamePosition(matthew);
+						if (!revert) {
+							if (patrons[i].isDescending()) {
+								for (int j = i + 1; j < patrons.length; j++) {
+									if (!patrons[j].isOffstage()) revert = patrons[i].isInSamePosition(patrons[j]);
+									if (revert) break;
+								}
+							}
 						}
+						if (revert) patrons[i].revertToLastPosition();
 					}
 				}
-				if (revert) patrons[i].revertToLastPosition();
-			}
-		}
-		
-		// Add new patron
-		
-		elapsedTime += delta;
-		if (elapsedTime > newPatronInterval) {
-			for (Patron p: patrons) {
-				if (p.isOffstage()) {
-					p.reset();
-					stage.addActor(p);
-					break;
+				
+				// Add new patron
+				
+				elapsedTime += delta;
+				if (elapsedTime > newPatronInterval) {
+					for (Patron p: patrons) {
+						if (p.isOffstage()) {
+							p.reset();
+							stage.addActor(p);
+							break;
+						}
+					}
+					elapsedTime = 0f;			
 				}
+				
+				// Update score
+				
+				for (Patron p: patrons) score += p.incrementScore();
+				scoreKeeper.setText("Score: " + score);
+				scoreKeeper.align();
+				
+				// Check state of Matthew & dogfish
+				
+				if (dogfish.isSwimming()) {			
+					if (matthew.isAdjacentTo(dogfish)) {
+						matthew.setEscaping(true);
+						dogfish.setSwimming(false);
+					}
+				} else {
+					dogfish.setGridPosition(matthew.getRow() + 1, matthew.getColumn());
+				}
+				
+				// Check for game over
+				
+				if (!over) {
+					boolean escape = !dogfish.isSwimming() && matthew.getRow() == GRID_ROWS - 1;
+					boolean capture = !dogfish.isSwimming() && nate.isAdjacentTo(matthew);
+					over = escape || capture || timeKeeper.timeExpired();
+					if (over) {
+						game.setLostDogfish(escape);
+						elapsedTime = 0f;
+					}
+				}
+
+			} else {
+				
+				/* Breifly freeze the screen when the game ends,
+				 * then go to the score screen. */
+								
+				elapsedTime += delta;
+				if (elapsedTime > 2f) goToScoreScreen();
+				
 			}
-			elapsedTime = 0f;			
+
 		}
-		
-		// Update score
-		
-		for (Patron p: patrons) score += p.incrementScore();
-		scoreKeeper.setText("Score: " + score);
-		scoreKeeper.align();
-		
-		// Check state of Matthew & dogfish
-		
-		if (dogfish.isSwimming()) {			
-			if (matthew.isAdjacentTo(dogfish)) {
-				matthew.setEscaping(true);
-				dogfish.setSwimming(false);
-			}
-		} else {
-			dogfish.setGridPosition(matthew.getRow() + 1, matthew.getColumn());
-			boolean escape = matthew.getRow() == GRID_ROWS - 1;
-			boolean capture = nate.isAdjacentTo(matthew);
-			if (escape || capture) {
-				game.setLostDogfish(escape);
-				goToScoreScreen();
-			}
-		}
-		
-		// Out of time?
-		
-		if (timeKeeper.timeExpired()) goToScoreScreen();
 		
         // Clear screen (black)
         
