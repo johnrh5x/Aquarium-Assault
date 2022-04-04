@@ -131,14 +131,7 @@ public class TutorialScreen extends ScreenAdapter implements Constants {
 	
 	private void move(TextureActor actor, int direction) {
 		
-		int r = actor.getRow();
-		int c = actor.getColumn();
-		switch (direction) {
-			case TextureActor.DOWN:  if (r > bounds[TextureActor.DOWN])  actor.setRow(r - 1);    break;
-			case TextureActor.LEFT:  if (c > bounds[TextureActor.LEFT])  actor.setColumn(c - 1); break;
-			case TextureActor.RIGHT: if (c < bounds[TextureActor.RIGHT]) actor.setColumn(c + 1); break;
-			case TextureActor.UP:    if (r < bounds[TextureActor.UP])    actor.setRow(r + 1);    break;
-		}
+		actor.move(direction);
 		
 	}
 	

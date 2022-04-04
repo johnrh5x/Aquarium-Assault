@@ -16,6 +16,7 @@ public class Dogfish extends TextureActor {
 	public Dogfish(Texture texture) {
 		
 		super(texture);
+		setID(DOGFISH);
 		elapsedTime = 0f;
 		swimming = true;
 		
@@ -54,6 +55,18 @@ public class Dogfish extends TextureActor {
 				}
 				elapsedTime = 0f;
 			}
+		} else {
+			
+			/* If the dogfish is not swimming, then it has been
+			 * captured and should be one square above Matthew. */
+			
+			int[] mp = TextureActor.position(MATTHEW);
+			int targetRow = mp[0] + 1;
+			int targetColumn = mp[1];
+			if (targetRow != getRow() || targetColumn != getColumn()) {
+				setGridPosition(targetRow,targetColumn);
+			}
+			
 		}
 		
 	}
@@ -77,6 +90,11 @@ public class Dogfish extends TextureActor {
 
 	public boolean isSwimming() {return swimming;}
 
-	public void setSwimming(boolean b) {swimming = b;}
+	public void setSwimming(boolean b) {
+		
+		swimming = b;
+		if (!swimming) removeFromMap();
+		
+	}
 
 }

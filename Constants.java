@@ -10,7 +10,9 @@ public interface Constants {
 	public static final int DOGFISH    = 3;
 	public static final int BACKGROUND = 4;
 	public static final int FISHTANK   = 5;
-	
+	public static final int NONE       = 6;
+
+	public static final String[] ID = {"Nate","Matthew","Alice","Dogfish","Fishtank","None"};
 
 	public static final int GRID_ROWS    = 13;
 	public static final int GRID_COLUMNS = 11;

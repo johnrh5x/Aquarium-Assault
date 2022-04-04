@@ -75,6 +75,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		
 		dogfish = new Dogfish(game.texture(DOGFISH));
 		stage.addActor(dogfish);
+		dogfish.addToMap();
 		
 		/* Create Nate */
 		
@@ -82,6 +83,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		nate.setGridPosition(7,5);
 		stage.addActor(nate);
 		stage.setKeyboardFocus(nate);
+		nate.addToMap();
 		
 		/* Create patrons */
 		
@@ -93,8 +95,9 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		
 		matthew = new Matthew(game.texture(MATTHEW));
 		stage.addActor(matthew);
+		matthew.addToMap();
 		
-		/* Set timers */
+		/* Set timers and timing */
 		
 		newPatronInterval = 2f;
 		elapsedTime = newPatronInterval; // Add a new patron immediately
@@ -128,7 +131,7 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 	
 	private void goToScoreScreen() {
 		
-		Patron.clearColumns();
+		TextureActor.clearMap();
 		game.setScore(score);
 		game.setScreen(new ScoreScreen(game));
 		
@@ -140,36 +143,15 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 		if (!paused) {
 
 			if (!over) {
-
-				// Update actor's information
 				
-				Patron.setMatthewPosition(matthew);
-				Patron.setNatePosition(nate);
-				Patron.setFishPosition(dogfish);
-				nate.getValidMoves(matthew, patrons);
-				matthew.getValidMoves(nate, patrons, dogfish);
+				// Update actors' information
+				
+				matthew.getNearestDefaultPatron(patrons);
 				
 				// Move actors
 				
 				stage.act(delta);
-				
-				// Handle actor overlaps
-				
-				for (int i = 0; i < patrons.length; i++) {
-					if (!patrons[i].isOffstage()) {
-						boolean revert = patrons[i].isInSamePosition(nate) || patrons[i].isInSamePosition(matthew);
-						if (!revert) {
-							if (patrons[i].isDescending()) {
-								for (int j = i + 1; j < patrons.length; j++) {
-									if (!patrons[j].isOffstage()) revert = patrons[i].isInSamePosition(patrons[j]);
-									if (revert) break;
-								}
-							}
-						}
-						if (revert) patrons[i].revertToLastPosition();
-					}
-				}
-				
+								
 				// Add new patron
 				
 				elapsedTime += delta;
@@ -197,8 +179,6 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 						matthew.setEscaping(true);
 						dogfish.setSwimming(false);
 					}
-				} else {
-					dogfish.setGridPosition(matthew.getRow() + 1, matthew.getColumn());
 				}
 				
 				// Check for game over

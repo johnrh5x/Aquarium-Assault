@@ -12,10 +12,8 @@ public class Matthew extends TextureActor {
 	// Fields
 	
 	private RandomXS128 rng;
-	private boolean[]   canMove;
 	private float       elapsedTime;
 	private float       turnLength = 0.5f; // Two turns per second
-	private int         nateRow, nateColumn, fishRow, fishColumn;
 	private int[]       nearestDefaultPatron;
 	private boolean     escaping;
 	
@@ -26,8 +24,9 @@ public class Matthew extends TextureActor {
 		// Declarations & initialization
 		
 		super(texture);
+		setID(MATTHEW);
+		setBoundary(DOWN,EXIT_ROW);
 		rng = new RandomXS128();
-		canMove = new boolean[4];
 		elapsedTime = 0f;
 		nearestDefaultPatron = new int[2];
 		setGridPosition(GRID_ROWS - 2, GRID_COLUMNS/2);
@@ -48,12 +47,7 @@ public class Matthew extends TextureActor {
 			} else {
 				index = chaseFish();
 			}
-			switch (index) {
-				case DOWN:  moveDown();  break;
-				case LEFT:  moveLeft();  break;
-				case RIGHT: moveRight(); break;
-				case UP:    moveUp();    break;
-			}
+			if (index != -1) move(index);
 			elapsedTime = 0f;
 		}
 
@@ -70,15 +64,16 @@ public class Matthew extends TextureActor {
 		
 		// Future fish position
 		
-		int nextRow = fishRow;
-		int nextColumn = fishColumn;
-		if (fishColumn == 0 && fishRow > 0) {
+		int[] fishPosition = TextureActor.dogfishPosition();
+		int nextRow = fishPosition[0];
+		int nextColumn = fishPosition[1];
+		if (fishPosition[0] == 0 && fishPosition[1] > 0) {
 			nextRow--;
-		} else if (fishColumn == GRID_COLUMNS - 1 && fishRow < EXIT_ROW - 1) {
+		} else if (fishPosition[1] == GRID_COLUMNS - 1 && fishPosition[0] < EXIT_ROW - 1) {
 			nextRow++;
-		} else if (fishRow == 0) {
+		} else if (fishPosition[0] == 0) {
 			nextColumn++;
-		} else if (fishRow == EXIT_ROW - 1) {
+		} else if (fishPosition[0] == EXIT_ROW - 1) {
 			nextColumn--;
 		} else {
 			System.out.println("Something has gone horribly wrong in Matthew's fish-prediction code.");
@@ -88,6 +83,7 @@ public class Matthew extends TextureActor {
 		
 		int dy = getRow() - nextRow;
 		int dx = getColumn() - nextColumn;
+		boolean[] canMove = validMoves();
 		boolean[] closer = new boolean[4];
 		closer[DOWN]  = dy > 0 && canMove[DOWN];
 		closer[LEFT]  = dx > 0 && canMove[LEFT];
@@ -134,6 +130,7 @@ public class Matthew extends TextureActor {
 			
 			int dy = getRow() - nearestDefaultPatron[0];
 			int dx = getColumn() - nearestDefaultPatron[1];
+			boolean[] canMove = validMoves();
 			boolean[] closer = new boolean[4];
 			closer[DOWN]  = dy > 0 && canMove[DOWN];
 			closer[LEFT]  = dx > 0 && canMove[LEFT];
@@ -187,9 +184,14 @@ public class Matthew extends TextureActor {
 		 * side. */
 		 
 		int output = -1;
+		int r = getRow();
+		int c = getColumn();
+		int[] natePosition = TextureActor.natePosition();
+		int nateRow = natePosition[0];
+		int nateColumn = natePosition[1];
+		boolean[] canMove = validMoves();
 		if (canMove[UP]) output = UP;
 		if (distanceTo(nateRow,nateColumn) < 4 && nateRow > getRow()) {
-			int c = getColumn();
 			if (nateColumn < c && canMove[RIGHT]) {
 				output = RIGHT;
 			} else if (nateColumn > c && canMove[LEFT]) {
@@ -219,6 +221,10 @@ public class Matthew extends TextureActor {
 		/* Determine which directions would put Matthew further from 
 		 * Nate. */
 		
+		int[] natePosition = TextureActor.natePosition();
+		int nateRow = natePosition[0];
+		int nateColumn = natePosition[1];
+		boolean[] canMove = validMoves();
 		boolean[] farther = new boolean[4];
 		farther[DOWN]  = r <= nateRow    && canMove[DOWN];
 		farther[LEFT]  = c <= nateColumn && canMove[LEFT];
@@ -252,38 +258,10 @@ public class Matthew extends TextureActor {
 		
 	}
 	
-	public void getValidMoves(Nate nate, Patron[] patrons, Dogfish dogfish) {
+	public void getNearestDefaultPatron(Patron[] patrons) {
 		
 		int r = getRow();
 		int c = getColumn();
-		
-		// Check for gameplay area boundaries
-		
-		canMove[DOWN] = r > EXIT_ROW;
-		canMove[LEFT] = c > 0;
-		canMove[RIGHT] = c < GRID_COLUMNS - 1;
-		canMove[UP] = r < GRID_ROWS - 1;
-		
-		// Check for collisions with Nate and patrons
-		
-		nateRow = nate.getRow();
-		nateColumn = nate.getColumn();
-		for (int i = DOWN; i <= UP; i++) {
-			if (canMove[i]) {
-				canMove[i] = !(nateRow == r + ROW_ADJ[i] && nateColumn == c + COL_ADJ[i]);
-				if (canMove[i]) {
-					for (Patron p: patrons) {
-						if (!p.isOffstage()) {
-							canMove[i] = !(p.getRow() == r + ROW_ADJ[i] && p.getColumn() == c + COL_ADJ[i]);
-							if (!canMove[i]) break;
-						}
-					}
-				}
-			}
-		}
-		
-		// Get the position of nearest Patron in the DEFAULT state;
-		
 		nearestDefaultPatron[0] = -1;
 		nearestDefaultPatron[1] = -1;
 		int minDistance = GRID_ROWS + GRID_COLUMNS;
@@ -300,11 +278,6 @@ public class Matthew extends TextureActor {
 			}
 		}
 		
-		// Get the position of the dogfish
-		
-		fishRow = dogfish.getRow();
-		fishColumn = dogfish.getColumn();
-
 	}
 	
 	public boolean isEscaping() {return escaping;}
@@ -318,6 +291,7 @@ public class Matthew extends TextureActor {
 				
 		// Count the number of valid moves
 		
+		boolean[] canMove = validMoves();
 		int moves = 0;
 		for (int i = 0; i < canMove.length; i++) {
 			if (canMove[i]) moves++;
