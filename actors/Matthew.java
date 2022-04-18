@@ -64,7 +64,7 @@ public class Matthew extends TextureActor {
 		
 		// Future fish position
 		
-		int[] fishPosition = TextureActor.position(DOGFISH);
+		int[] fishPosition = TextureActor.dogfishPosition();
 		int nextRow = fishPosition[0];
 		int nextColumn = fishPosition[1];
 		if (fishPosition[0] == 0 && fishPosition[1] > 0) {
@@ -186,7 +186,7 @@ public class Matthew extends TextureActor {
 		int output = -1;
 		int r = getRow();
 		int c = getColumn();
-		int[] natePosition = TextureActor.position(NATE);
+		int[] natePosition = TextureActor.natePosition();
 		int nateRow = natePosition[0];
 		int nateColumn = natePosition[1];
 		boolean[] canMove = validMoves();
@@ -221,7 +221,7 @@ public class Matthew extends TextureActor {
 		/* Determine which directions would put Matthew further from 
 		 * Nate. */
 		
-		int[] natePosition = TextureActor.position(NATE);
+		int[] natePosition = TextureActor.natePosition();
 		int nateRow = natePosition[0];
 		int nateColumn = natePosition[1];
 		boolean[] canMove = validMoves();

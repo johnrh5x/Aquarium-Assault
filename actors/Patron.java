@@ -121,7 +121,7 @@ public class Patron extends TextureActor {
 		
 		/* If the patron is WAITING, check to see if the patron is next 
 		 * to the dogfish.  If so, change the patron's state to 
-		 * EXITING. */
+		 * EXITING and remove her from the map. */
 		 
 		if (phase == Phase.WAITING) {
 			if (nextTo(DOGFISH)) {
