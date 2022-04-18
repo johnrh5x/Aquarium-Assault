@@ -53,14 +53,27 @@ public class TextureActor extends Actor implements Constants {
 	// Methods
 	
 	public boolean addToMap() {
-		
-		onMap = map[row][column] == NONE;
-		if (onMap) map[row][column] = id;
-		return onMap;
+
+		/* Attempts to add the actor to the collision map.  Returns true
+		 * if successful and false otherwise.  Will return false if
+		 * the actor's row or column is outside the actor's boundaries
+		 * or if there is already an actor on the map in the same
+		 * square as this actor. */
+
+		boolean validRow = row >= boundary[LEFT] && row <= boundary[RIGHT];
+		boolean validColumn = column >= boundary[DOWN] && column <= boundary[UP];
+		boolean output = validRow && validColumn;
+		if (output) {
+			output = map[row][column] == NONE;
+			if (output) map[row][column] = id;
+		}
+		return output;
 		
 	}
 	
 	public static void clearMap() {
+		
+		/* Fills every square on the map with NONE. */
 		
 		for (int i = 0; i < map.length; i++) {
 			for (int j = 0; j < map[i].length; j++) {
@@ -81,18 +94,16 @@ public class TextureActor extends Actor implements Constants {
 	}
 	
 	public int getBoundary(int direction) {return boundary[direction];}
-	
-	public int getRow() {return row;}
-	
+
 	public int getColumn() {return column;}
-	
-	public int getID() {return id;}
-	
+
 	public static int getID(int row, int column) {return map[row][column];}
+
+	public int getLastColumn() {return lastColumn;}
 	
 	public int getLastRow() {return lastRow;}
 	
-	public int getLastColumn() {return lastColumn;}
+	public int getRow() {return row;}
 	
 	public Texture getTexture() {return texture;}
 
@@ -104,22 +115,6 @@ public class TextureActor extends Actor implements Constants {
 		
 	}
 
-	public boolean isAdjacentTo(int row, int column) {
-
-		int dx = this.column - column;		
-		int dy = this.row - row;
-		return dx*dx + dy*dy == 1;
-		
-	}
-
-	public boolean isInSamePosition(TextureActor actor) {
-		
-		return row == actor.getRow() && column == actor.getColumn();
-		
-	}
-
-	public boolean isOnMap() {return onMap;}
-
 	public static boolean mapSquareIsEmpty(int row, int column) {
 		
 		return map[row][column] == NONE;
@@ -127,44 +122,33 @@ public class TextureActor extends Actor implements Constants {
 	}
 
 	public boolean move(int direction) {
-		
-		/* Is the actor at a boundary? */
-		
-		boolean notAtBoundary = false;
+	
+		/* Attempt to move the actor in the indicated direction.  Return
+		 * true if the move executes successfully and false otherwise. 
+		 * Return false if the direction argument is not valid. */
+	
+		boolean output = false;	
 		switch (direction) {
-			case DOWN:  notAtBoundary = row > boundary[DOWN];     break;
-			case LEFT:  notAtBoundary = column > boundary[LEFT];  break;
-			case RIGHT: notAtBoundary = column < boundary[RIGHT]; break;
-			case UP:    notAtBoundary = row < boundary[UP];       break;
+			case DOWN:  output = row > boundary[DOWN];     break; // Can move down
+			case LEFT:  output = column > boundary[LEFT];  break; // Can move left
+			case RIGHT: output = column < boundary[RIGHT]; break; // Can move right
+			case UP:    output = row < boundary[UP];       break; // Can move up
 		}
-		
-		/* Is the actor's target square empty? */
-		
-		int targetRow = row + ROW_ADJ[direction];
-		int targetColumn = column + COL_ADJ[direction];
-		boolean targetSquareEmpty = map[targetRow][targetColumn] == NONE;
-		
-		/* If both conditions are true, update the actor's row, column,
-		 * and position and also update the map. If the actor can move
-		 * return true.  Otherwise, return false. */
-		
-		boolean output = notAtBoundary && targetSquareEmpty;
 		if (output) {
-			lastRow = row;
-			lastColumn = column;
-			row = targetRow;
-			column = targetColumn;
-			setPosition(GRID_STEP*column,GRID_STEP*row);
-			
-			/* If the actor is on the map, update the actor's
-			 * location on the map.  (Actors who are not on the map are
-			 * immune to collisions.) */
-			
-			if (onMap) {
-				map[lastRow][lastColumn] = NONE;
-				map[row][column] = id;
+			int targetRow = row + ROW_ADJ[direction];       // Row index for target grid square
+			int targetColumn = column + COL_ADJ[direction]; // Column index for target grid square
+			output = map[targetRow][targetColumn] == NONE;  // Target grid square is empty
+			if (output) {
+				lastRow = row;
+				lastColumn = column;
+				row = targetRow;
+				column = targetColumn;
+				setPosition(GRID_STEP*column,GRID_STEP*row);
+				if (onMap) {
+					map[lastRow][lastColumn] = NONE;
+					map[row][column] = id;
+				}
 			}
-			
 		}
 		return output;
 		
@@ -178,10 +162,31 @@ public class TextureActor extends Actor implements Constants {
 	
 	public boolean moveUp() {return move(UP);}
 
+	public boolean nextTo(int id) {
+		
+		/* Returns true if the actor is next to at least one other actor
+		 * with the id specified in the argument. */
+		
+		boolean output = false;
+		for (int i = DOWN; i <= UP; i++) {
+			int tr = row + ROW_ADJ[i];
+			int tc = column + COL_ADJ[i];
+			boolean rowBound = tr >= 0 && tr < GRID_ROWS;
+			boolean colBound = tc >= 0 && tc < GRID_COLUMNS;
+			if (rowBound && colBound) {
+				output = TextureActor.getID(tr,tc) == id;
+				if (output) break;
+			}
+		}
+		return output;
+		
+	}
+
 	public static int[] position(int id) {
 		
 		/* Returns the position of the first square with the same id as
-		 * the argument. */
+		 * the argument.  For use with NATE, MATTHEW, and DOGFISH.  
+		 * Results for PATRON will be arbitrary. */
 		
 		int[] output = null;
 		boolean match = false;
@@ -196,29 +201,6 @@ public class TextureActor extends Actor implements Constants {
 				}
 			}
 			if (match) break;
-		}
-		return output;
-		
-	}
-
-	public static int[] natePosition() {return TextureActor.position(NATE);}
-		
-	public static int[] dogfishPosition() {return TextureActor.position(DOGFISH);}
-
-	public boolean nextTo(int id) {
-		
-		boolean output = false;
-		int r = getRow();
-		int c = getColumn();
-		for (int i = DOWN; i <= UP; i++) {
-			int targetRow = r + ROW_ADJ[i];
-			int targetCol = c + COL_ADJ[i];
-			boolean rowBound = targetRow >= 0 && targetRow < GRID_ROWS;
-			boolean colBound = targetCol >= 0 && targetCol < GRID_COLUMNS;
-			if (rowBound && colBound) {
-				output = TextureActor.getID(targetRow,targetCol) == id;
-				if (output) break;
-			}
 		}
 		return output;
 		
@@ -256,14 +238,7 @@ public class TextureActor extends Actor implements Constants {
 					map[this.row][this.column] = id;
 				}
 				
-			} else {
-				System.out.println("Could not move " + ID[id] + ".");
-				System.out.println("Target square already contains: " + ID[TextureActor.getID(row,column)]);
 			}
-		} else {
-			System.out.println("Move failed.");
-			System.out.println("Valid target row:    " + validRow);
-			System.out.println("Valid target column: " + validColumn);
 		}
 		return output;
 		
