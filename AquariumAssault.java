@@ -2,10 +2,13 @@ package john.aquariumassault;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.DistanceFieldFont;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+
+import john.aquariumassault.actors.Patron;
 
 public class AquariumAssault extends Game implements Constants {
 
@@ -16,6 +19,7 @@ public class AquariumAssault extends Game implements Constants {
 	private ShaderProgram     fontShader;
 	private int               score;
 	private boolean           dogfish;
+	private Sound             tap;
 	
 	// Methods
 	
@@ -43,6 +47,11 @@ public class AquariumAssault extends Game implements Constants {
 		score = 0;
 		dogfish = false;
 						
+		// Create a tapping sound effect
+		
+		tap = Gdx.audio.newSound(Gdx.files.internal("audio/single tap.wav"));
+		Patron.setTap(tap);
+					
 		// Start the game
 		
 		setScreen(new IntroScreen(this));
@@ -55,6 +64,7 @@ public class AquariumAssault extends Game implements Constants {
 		for (Texture t: textures) t.dispose();
 		font.dispose();
 		fontShader.dispose();
+		tap.dispose();
 		
 	}
 
@@ -69,6 +79,8 @@ public class AquariumAssault extends Game implements Constants {
 	public void setLostDogfish(boolean b) {dogfish = b;}
 
 	public void setScore(int score) {this.score = score;}
+	
+	public Sound tap() {return tap;}
 
 	public Texture texture(int i) {
 		

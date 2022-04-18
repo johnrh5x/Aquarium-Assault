@@ -20,6 +20,7 @@
 
 package john.aquariumassault.actors;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.RandomXS128;
@@ -56,6 +57,7 @@ public class Patron extends TextureActor {
 	private static float                 tapProb = 0.125f;  // Chance per turn of transitioning from DEFAULT to TAPPING
 	private static RandomXS128           rng;
 	private static int                   matthewRow, matthewColumn, nateRow, nateColumn, fishRow, fishColumn;
+	private static Sound                 tap;
 	private        Phase                 phase;
 	private        State                 state;
 	private        float                 elapsedTime;
@@ -261,6 +263,8 @@ public class Patron extends TextureActor {
 	
 	public boolean isOffstage() {return phase == Phase.OFFSTAGE;}
 
+	public boolean isTapping() {return state == State.TAPPING;}
+
 	public void reset() {
 		
 		/* Set the Patron's position, taking care not to spawn in the
@@ -292,15 +296,18 @@ public class Patron extends TextureActor {
 		
 	}
 
+	public static void setTap(Sound sound) {tap = sound;}
+
 	public void waitByTank() {
 		
 		switch (state) {
 			
 			case TAPPING:
 			
-				/* Add a new score event. */
+				/* Add a new score event and cue a new tapping sound. */
 				
 				events.add(new ScoreEvent(-200));
+				tap.play(1f);
 				break;
 				
 			case DEFAULT:

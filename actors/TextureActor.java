@@ -128,44 +128,44 @@ public class TextureActor extends Actor implements Constants {
 
 	public boolean move(int direction) {
 		
-		/* Is the actor at a boundary? */
-		
-		boolean notAtBoundary = false;
+		/* Is the actor not at the relevant boundary? */
+	
+		boolean output = false;
 		switch (direction) {
-			case DOWN:  notAtBoundary = row > boundary[DOWN];     break;
-			case LEFT:  notAtBoundary = column > boundary[LEFT];  break;
-			case RIGHT: notAtBoundary = column < boundary[RIGHT]; break;
-			case UP:    notAtBoundary = row < boundary[UP];       break;
+			case DOWN:  output = row > boundary[DOWN];     break;
+			case LEFT:  output = column > boundary[LEFT];  break;
+			case RIGHT: output = column < boundary[RIGHT]; break;
+			case UP:    output = row < boundary[UP];       break;
 		}
-		
-		/* Is the actor's target square empty? */
-		
-		int targetRow = row + ROW_ADJ[direction];
-		int targetColumn = column + COL_ADJ[direction];
-		boolean targetSquareEmpty = map[targetRow][targetColumn] == NONE;
-		
-		/* If both conditions are true, update the actor's row, column,
-		 * and position and also update the map. If the actor can move
-		 * return true.  Otherwise, return false. */
-		
-		boolean output = notAtBoundary && targetSquareEmpty;
 		if (output) {
-			lastRow = row;
-			lastColumn = column;
-			row = targetRow;
-			column = targetColumn;
-			setPosition(GRID_STEP*column,GRID_STEP*row);
 			
-			/* If the actor is on the map, update the actor's
-			 * location on the map.  (Actors who are not on the map are
-			 * immune to collisions.) */
+			/* If so, is the actor's target square empty? */
 			
-			if (onMap) {
-				map[lastRow][lastColumn] = NONE;
-				map[row][column] = id;
+			int targetRow = row + ROW_ADJ[direction];
+			int targetColumn = column + COL_ADJ[direction];
+			output = map[targetRow][targetColumn] == NONE;
+			if (output) {
+				
+				/* If so, update the actor's position information. */
+				
+				lastRow = row;
+				lastColumn = column;
+				row = targetRow;
+				column = targetColumn;
+				setPosition(GRID_STEP*column,GRID_STEP*row);			
+				
+				/* If the actor is on the map, update the map with the
+				 * actor's new position. */
+				
+				if (onMap) {
+					map[lastRow][lastColumn] = NONE;
+					map[row][column] = id;
+				}
+				
 			}
 			
 		}
+
 		return output;
 		
 	}

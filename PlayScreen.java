@@ -168,7 +168,9 @@ public class PlayScreen extends ScreenAdapter implements Constants {
 				
 				// Update score
 				
-				for (Patron p: patrons) score += p.incrementScore();
+				for (Patron p: patrons) {
+					score += p.incrementScore();
+				}
 				scoreKeeper.setText("Score: " + score);
 				scoreKeeper.align();
 				

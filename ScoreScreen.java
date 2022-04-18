@@ -107,7 +107,7 @@ public class ScoreScreen extends ScreenAdapter implements Constants {
 				}
 			} else {
 				line[index + 3].setColor(Color.BLUE);
-				while (game.getScore() < CUTOFFS[index] && index > 0) index--;
+				while (game.getScore() > CUTOFFS[index] && index > 0) index--;
 				line[index + 3].setColor(Color.RED);
 			}
 		}
