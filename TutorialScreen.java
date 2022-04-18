@@ -82,6 +82,8 @@ public class TutorialScreen extends ScreenAdapter implements Constants {
 				return false;
 			}
 		});
+		nate.setBoundary(TextureActor.DOWN, EXIT_ROW);
+		nate.setBoundary(TextureActor.UP, GRID_ROWS - 4);
 		
 		// Fishtank
 
