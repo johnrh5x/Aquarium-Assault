@@ -81,7 +81,7 @@ public class ScoreScreen extends ScreenAdapter implements Constants {
 		float dy = WORLD_HEIGHT/(line.length + 1f);
 		for (int i = 0; i < line.length; i++) {
 			line[i].setSize(WORLD_WIDTH,GRID_STEP);
-			line[i].setScale(0.5f);
+			line[i].setFontScale(0.5f);
 			line[i].setPosition(0f, WORLD_HEIGHT - (i + 1)*dy - 0.5f*GRID_STEP);
 		}
 		

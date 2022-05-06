@@ -53,7 +53,7 @@ public class TitleScreen extends ScreenAdapter implements Constants {
 		subtitle.setColor(Color.RED);
 		subtitle.setWidth(WORLD_WIDTH);
 		subtitle.setHeight(0.5f*GRID_STEP);
-		subtitle.setScale(0.5f);
+		subtitle.setFontScale(0.5f);
 		stage.addActor(subtitle);
 		
 		// Create tag text
@@ -62,7 +62,7 @@ public class TitleScreen extends ScreenAdapter implements Constants {
 		tagline.setColor(Color.BLUE);
 		tagline.setWidth(WORLD_WIDTH);
 		tagline.setHeight(0.5f*GRID_STEP);
-		tagline.setScaleX(0.5f);
+		tagline.setFontScale(0.5f);
 		tagline.setX(0f);
 		stage.addActor(tagline); 
 		

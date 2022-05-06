@@ -107,7 +107,7 @@ public class TutorialScreen extends ScreenAdapter implements Constants {
 			for (int j = 0; j < text[i].length; j++) {
 				text[i][j] = new TextActor(game.font(),game.fontShader(),PROMPT[i][j]);
 				text[i][j].setColor(Color.BLUE);
-				text[i][j].setScale(0.5f);
+				text[i][j].setFontScale(0.5f);
 				text[i][j].setSize(WORLD_WIDTH,GRID_STEP);
 				text[i][j].setPosition(0f,WORLD_HEIGHT - (j + 1)*GRID_STEP);
 			}

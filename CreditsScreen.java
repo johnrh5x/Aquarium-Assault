@@ -3,19 +3,24 @@ package john.aquariumassault;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+//import com.badlogic.gdx.graphics.g2d.BitmapFont;
+//import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+//import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class CreditsScreen extends ScreenAdapter {
+import john.aquariumassault.actors.TextActor;
+
+public class CreditsScreen extends ScreenAdapter implements Constants {
 	
 	// Fields
 	
 	private static final String[][] TEXT = {{"Cast"},
+		                                    {"You", "Nate Crowley"},
 		                                    {"Aquarium Patrons","Alice Bell"},
 		                                    {"Mr. Basil Pesto", "Matthew Castle"},
-		                                    {"Underwritten Game Character", "Nate Crowley"},
 		                                    {"Questionable Design Decisions"},
 		                                    {"John Harris"},
 											{"Programming"},
@@ -30,36 +35,22 @@ public class CreditsScreen extends ScreenAdapter {
 	private static final int[] COLOR = {RED,BLUE,BLUE,BLUE,RED,BLUE,RED,BLUE,RED,BLUE,RED,BLUE};
 	
 	private AquariumAssault game;
-	private BitmapFont[]    font;
-	private SpriteBatch     batch;
-	private float[][]       x;
-	private float[]         y;
+	//private BitmapFont[]    font;
+	//private SpriteBatch     batch;
+	//private float[][]       x;
+	//private float[]         y;
+	private Stage         stage;
+	private TextActor[][] text;	
 	
 	// Constructor
 	
 	public CreditsScreen(AquariumAssault game) {
 		
 		this.game = game;
-
-		// Create a sprite batch
 		
-		batch = new SpriteBatch();
+		// Create a stage and configure it to handle input
 		
-		// Create fonts
-		
-		font = new BitmapFont[2];
-		font[RED] = new BitmapFont();
-		font[RED].setColor(1f,0f,0f,1f);
-		font[BLUE] = new BitmapFont();
-		font[BLUE].setColor(0f,0f,1f,1f);
-		
-		// Layout
-		
-		layout();
-		
-		// Handle input
-		
-		Gdx.input.setInputProcessor(new InputAdapter() {
+		stage = new Stage(new FitViewport(WORLD_WIDTH,WORLD_HEIGHT)) {
 			@Override
 			public boolean keyDown(int keyCode) {
 				nextScreen();
@@ -70,53 +61,69 @@ public class CreditsScreen extends ScreenAdapter {
 				nextScreen();
 				return true;
 			}
-		}); 
+		};
+		
+		// Create text actors
+		
+		text = new TextActor[TEXT.length][];
+		for (int i = 0; i < text.length; i++) {
+			text[i] = new TextActor[TEXT[i].length];
+			for (int j = 0; j < text[i].length; j++) {
+				text[i][j] = new TextActor(game.font(),game.fontShader(),TEXT[i][j]);
+				switch (COLOR[i]) {
+					case RED:  text[i][j].setColor(Color.RED);  break;
+					case BLUE: text[i][j].setColor(Color.BLUE); break;
+				}
+				switch (text[i].length) {
+					case 1:
+						text[i][j].setSize(WORLD_WIDTH,GRID_STEP);
+						text[i][j].setFontScale(0.5f);
+						break;
+					case 2:
+						text[i][j].setSize(0.5f*WORLD_WIDTH,GRID_STEP);
+						text[i][j].setFontScale(0.4f);
+						switch (j) {
+							case 0: text[i][j].setHorizontalAlignment(TextActor.HorizontalAlignment.LEFT);  break;
+							case 1: text[i][j].setHorizontalAlignment(TextActor.HorizontalAlignment.RIGHT); break;
+						}
+						break;
+				}
+				stage.addActor(text[i][j]);
+			}
+		}
+		
+		// Layout
+		
+		float dv = WORLD_HEIGHT/(text.length + 1f);
+		float dh = 20f; // Margin
+		for (int i = 0; i < text.length; i++) {
+			
+			// Horizontal
+			
+			switch (text[i].length) {
+				case 1:
+					text[i][0].setX(0f);
+					break;
+				case 2:
+					text[i][0].setX(dh);
+					text[i][1].setX(WORLD_WIDTH - dh - text[i][1].getWidth());
+					break;
+			}
+			
+			// Vertical
+			
+			for (int j = 0; j < text[i].length; j++) {
+				text[i][j].setY(WORLD_HEIGHT - (i + 1)*dv - 0.5f*text[i][j].getHeight());
+			}
+			
+		}
 		
 	}
 	
 	// Methods
 	
 	@Override
-	public void dispose() {
-		
-		font[RED].dispose();
-		font[BLUE].dispose();
-		batch.dispose();
-
-	}
-	
-	private void layout() {
-		
-		x = new float[TEXT.length][];
-		y = new float[TEXT.length];
-		int width = Gdx.graphics.getWidth();
-		int height = Gdx.graphics.getHeight();
-		float dv = height/(2f*TEXT.length + 1f); 
-		float dh = 20f;
-		float wmax = 0f;
-		for (int i = 0; i < TEXT.length; i++) {
-			float[] w = new float[TEXT[i].length];
-			x[i] = new float[TEXT[i].length];
-			float h = 0f;
-			for (int j = 0; j < TEXT[i].length; j++) {
-				GlyphLayout l = new GlyphLayout(font[COLOR[i]],TEXT[i][j]);
-				w[j] = l.width;
-				if (j > 0) {
-					if (wmax < w[j]) wmax = w[j];
-				}
-				if (h < l.height) h = l.height;
-				x[i][j] = 0.5f*(width - w[j]);
-			}
-			y[i] = height - (2*i + 1)*dv - 0.5f*(dv - h);
-		}
-		for (int i = 0; i < TEXT.length; i++) {
-			if (TEXT[i].length == 2) {
-				x[i][0] = dh;
-				x[i][1] = width - dh - wmax;
-			}
-		}
-		
-	}
+	public void dispose() {stage.dispose();}
 	
 	private void nextScreen() {game.setScreen(new TitleScreen(game));}
 	
@@ -125,14 +132,15 @@ public class CreditsScreen extends ScreenAdapter {
         
         Gdx.gl.glClearColor(1,1,1,0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        batch.begin();
-        for (int i = 0; i < TEXT.length; i++) {
-			for (int j = 0; j < TEXT[i].length; j++) {
-				font[COLOR[i]].draw(batch,TEXT[i][j],x[i][j],y[i]);
-			}
-		}
-		batch.end();
+		stage.draw();
 		
 	}
+	
+	@Override
+	public void resize(int width, int height) {stage.getViewport().update(width,height);}
+
+	
+	@Override
+	public void show() {Gdx.input.setInputProcessor(stage);}
 	
 }

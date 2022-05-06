@@ -38,7 +38,7 @@ public class AquariumAssault extends Game implements Constants {
 		
 		// Create a scaleable font and the corresponding shader
 		
-		BitmapFont temp = new BitmapFont();
+		BitmapFont temp = new BitmapFont(Gdx.files.internal("font/droid_sans.fnt"),Gdx.files.internal("font/droid_sans.png"),false);
 		font = new DistanceFieldFont(temp.getData(),temp.getRegions(),false);
 		fontShader = font.createDistanceFieldShader();
 		

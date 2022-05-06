@@ -17,7 +17,7 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 	private static final String[][] TEXT = {{"This is you.","You work at the aquarium."},
 		                                    {"This is an aquarium patron.","Patrons aren't fish,","so they all look alike to you."},
 		                                    {"This is Mr. Basil Pesto.","He's a bad man:","tank tapper,","fish-napper,","and a thoroughly bad example."},
-		                                    {"Your job is to:","greet patrons as they enter,","stop patrons from tapping on the tank, and ","watch out for Mr. Basil Pesto!"}};
+		                                    {"Your job is to:","greet patrons as they enter,","stop patrons from tapping on the tank,","and watch out for Mr. Basil Pesto!"}};
 
 	private static final int[] PORTRAIT_INDEX = {NATE,ALICE,MATTHEW,NATE};
 
@@ -67,7 +67,7 @@ public class IntroScreen extends ScreenAdapter implements Constants {
 			for (int j = 0; j < text[i].length; j++) {
 				text[i][j] = new TextActor(game.font(),game.fontShader(),TEXT[i][j]);
 				text[i][j].setColor(Color.BLUE);
-				text[i][j].setScale(0.5f);
+				text[i][j].setFontScale(0.5f);
 				text[i][j].setSize(WORLD_WIDTH,GRID_STEP);
 				text[i][j].align();
 				text[i][j].toggleTyping();

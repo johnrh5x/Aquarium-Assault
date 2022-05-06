@@ -21,6 +21,7 @@ public class TextActor extends Actor implements Constants {
 	private DistanceFieldFont   font;
 	private ShaderProgram       shader;
 	private String              text;
+	private float               fontScale;      // As distinct from the actor's scale
 	private float               drawX, drawY;
 	private HorizontalAlignment horizontal;
 	private VerticalAlignment   vertical;
@@ -36,6 +37,7 @@ public class TextActor extends Actor implements Constants {
 		this.font = font;
 		this.shader = shader;
 		this.text = text;
+		fontScale = 1f;
 		horizontal = HorizontalAlignment.CENTER;
 		vertical = VerticalAlignment.CENTER;
 		typing = false;
@@ -78,10 +80,10 @@ public class TextActor extends Actor implements Constants {
 				drawX = getX();
 				break;
 			case CENTER:
-				drawX = getX() + 0.5f*(getWidth() - l.width);
+				drawX = getX() + 0.5f*(getWidth()*getScaleX() - l.width);
 				break;
 			case RIGHT:
-				drawX = getX() + getWidth() - l.width;
+				drawX = getX() + getWidth()*getScaleX() - l.width;
 				break;
 		}
 		switch (vertical) {
@@ -89,7 +91,7 @@ public class TextActor extends Actor implements Constants {
 				drawY = getY() + getHeight();
 				break;
 			case CENTER:
-				drawY = getY() + 0.5f*(getHeight() + l.height);
+				drawY = getY() + 0.5f*(getHeight()*getScaleY() + l.height);
 				break;
 			case BOTTOM:
 				drawY = getY() + l.height;
@@ -102,7 +104,7 @@ public class TextActor extends Actor implements Constants {
 	public void draw(Batch batch, float parentAlpha) {
 		
 		font.setColor(getColor());
-		font.getData().setScale(getScaleX());
+		font.getData().setScale(fontScale*getScaleX(),fontScale*getScaleY());
 		batch.setShader(shader);
 		font.draw(batch,text.substring(0,typingIndex),drawX,drawY);
 		batch.setShader(null);
@@ -119,7 +121,7 @@ public class TextActor extends Actor implements Constants {
 
 	public GlyphLayout getGlyphLayout() {
 		
-		font.getData().setScale(getScaleX());
+		font.getData().setScale(fontScale*getScaleX(),fontScale*getScaleY());
 		GlyphLayout output = new GlyphLayout(font,text);
 		font.getData().setScale(1f);
 		return output;
@@ -128,7 +130,16 @@ public class TextActor extends Actor implements Constants {
 
 	public DistanceFieldFont getFont() {return font;}
 
+	public float getFontScale() {return fontScale;}
+
 	public String getText() {return text;}
+
+	public void setFontScale(float fontScale) {
+		
+		this.fontScale = fontScale;
+		align();
+		
+	}
 
 	public void setHorizontalAlignment(HorizontalAlignment ha) {
 		
@@ -140,6 +151,30 @@ public class TextActor extends Actor implements Constants {
 	public void setPosition(float x, float y) {
 		
 		super.setPosition(x,y);
+		align();
+		
+	}
+
+	@Override
+	public void setScale(float scaleXY) {
+		
+		super.setScale(scaleXY);
+		align();
+		
+	}
+
+	@Override
+	public void setScaleX(float scaleX) {
+		
+		super.setScaleX(scaleX);
+		align();
+		
+	}
+
+	@Override
+	public void setScaleY(float scaleY) {
+		
+		super.setScaleY(scaleY);
 		align();
 		
 	}
