@@ -152,7 +152,7 @@ public class Patron extends TextureActor {
 			int r = getRow();
 			int c = getColumn();
 			int left = GRID_COLUMNS;
-			for (int i = c - 1; i >= 0; i++) {
+			for (int i = c - 1; i >= 0; i--) {
 				if (TextureActor.mapSquareIsEmpty(EXIT_ROW,i)) {
 					left = i - c;
 					break;

@@ -23,7 +23,7 @@ public class CreditsScreen extends ScreenAdapter implements Constants {
 		                                    {"Mr. Basil Pesto", "Matthew Castle"},
 		                                    {"Questionable Design Decisions"},
 		                                    {"John Harris"},
-											{"Programming"},
+											{"Inelegant Programming"},
 											{"John Harris"},
 											{"Portraits Yoinked From"},
 											{"www.rockpapershotgun.com"},

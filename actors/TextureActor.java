@@ -3,6 +3,7 @@ package john.aquariumassault.actors;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.RandomXS128;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import john.aquariumassault.Constants;
@@ -18,7 +19,8 @@ public class TextureActor extends Actor implements Constants {
 	public static final int[] ROW_ADJ = {-1,0,0,1};
 	public static final int[] COL_ADJ = {0,-1,1,0};
 
-	private static int[][] map;
+	private static int[][]     map;
+	private static RandomXS128 rng;
 
 	private Texture   texture;
 	private int       id, row, column, lastRow, lastColumn;
@@ -37,6 +39,7 @@ public class TextureActor extends Actor implements Constants {
 		column = 0;
 		lastRow = 0;
 		lastColumn = 0;
+		if (rng == null) rng = new RandomXS128();
 		if (map == null) {
 			map = new int[GRID_ROWS + 1][GRID_COLUMNS];
 			clearMap();
@@ -223,6 +226,35 @@ public class TextureActor extends Actor implements Constants {
 		return output;
 		
 	}
+	
+	public int randomIndex(boolean[] mask) {
+		
+		/* Given an array of booleans, this method returns either the
+		 * index of a randomly-selected true element or -1 if there are
+		 * no true elements.  This method will be used by the Patron
+		 * and Matthew classes to select from among available moves. */
+		 
+		int output = -1;
+		int counter = 0;
+		for (int i = 0; i < mask.length; i++) {
+			if (mask[i]) counter++;
+		}
+		if (counter > 0) {
+			int random = 1 + rng.nextInt(counter);
+			counter = 0;
+			for (int i = 0; i < mask.length; i++) {
+				if (mask[i]) counter++;
+				if (counter == random) {
+					output = i;
+					break;
+				}
+			}
+		}
+		return output;
+		
+	}
+
+	public int randomInt(int bound) {return rng.nextInt(bound);}
 	
 	public void removeFromMap() {
 		

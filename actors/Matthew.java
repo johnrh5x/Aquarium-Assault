@@ -11,7 +11,9 @@ public class Matthew extends TextureActor {
 
 	// Fields
 	
-	private RandomXS128 rng;
+	private static final boolean[] LATERAL_MASK  = {false, true, true, false};
+	private static final boolean[] VERTICAL_MASK = {true, false, false, true};
+	
 	private float       elapsedTime;
 	private float       turnLength = 0.5f; // Two turns per second
 	private int[]       nearestDefaultPatron;
@@ -26,7 +28,6 @@ public class Matthew extends TextureActor {
 		super(texture);
 		setID(MATTHEW);
 		setBoundary(DOWN,EXIT_ROW);
-		rng = new RandomXS128();
 		elapsedTime = 0f;
 		nearestDefaultPatron = new int[2];
 		setGridPosition(GRID_ROWS - 2, GRID_COLUMNS/2);
@@ -43,9 +44,12 @@ public class Matthew extends TextureActor {
 		if (elapsedTime > turnLength) {
 			int index = -1;
 			if (escaping) {
-				index = escape();
+				index = escape();                     // Run for it
+			} else if (getRow() > GRID_ROWS/2) {
+				index = chasePatron();                // If high up, incite a patron to tap the tank
+				if (index == -1) index = chaseFish(); // If there are no patrons to incite, go for the fish
 			} else {
-				index = chaseFish();
+				index = chaseFish();                  // If low down, go for the fish
 			}
 			if (index != -1) move(index);
 			elapsedTime = 0f;
@@ -59,10 +63,8 @@ public class Matthew extends TextureActor {
 		 * closest to grid square where the dogfish will be on its next 
 		 * turn or -1 if there is no valid move that would put him 
 		 * closer to the dogfish. */
-		 
-		int output = -1;
 		
-		// Future fish position
+		// Predict the fish's next position
 		
 		int[] fishPosition = TextureActor.dogfishPosition();
 		int nextRow = fishPosition[0];
@@ -90,29 +92,9 @@ public class Matthew extends TextureActor {
 		closer[RIGHT] = dx < 0 && canMove[RIGHT];
 		closer[UP]    = dy < 0 && canMove[UP];
 		
-		// Choose randomly from among the desirable moves, if any
+		// Return a randomly-selected desirable move
 		
-		int moves = 0;
-		for (int i = 0; i < closer.length; i++) {
-			if (closer[i]) moves++;
-		}
-		if (moves > 0) {
-			int random = rng.nextInt(moves);
-			int counter = 0;
-			for (int i = 0; i < closer.length; i++) {
-			if (closer[i]) {
-					if (counter == random) {
-						output = i;
-						break;
-					}
-					counter++;
-				}
-			}
-		}
-		
-		// Return output
-		
-		return output;
+		return randomIndex(closer);
 		
 	}
 	
@@ -139,23 +121,7 @@ public class Matthew extends TextureActor {
 			
 			/* Pick one of those moves at random. */
 
-			int moves = 0;
-			for (int i = 0; i < closer.length; i++) {
-				if (closer[i]) moves++;
-			}
-			if (moves > 0) {
-				int random = rng.nextInt(moves);
-				int counter = 0;
-				for (int i = 0; i < closer.length; i++) {
-					if (closer[i]) {
-						if (counter == random) {
-							output = i;
-							break;
-						}
-						counter++;
-					}
-				}
-			}
+			output = randomIndex(closer);
 			
 		}
 		return output;
@@ -167,10 +133,10 @@ public class Matthew extends TextureActor {
 		/* This method returns the distance from Matthew's position to
 		 * the row and column in the arguments. */
 		 
-		int dx = getRow() - row;
-		int dy = getColumn() - column;
-		if (dx < 0f) dx *= -1;
+		int dy = getRow() - row;
+		int dx = getColumn() - column;
 		if (dy < 0f) dy *= -1;
+		if (dx < 0f) dx *= -1;
 		return dx + dy;
 		
 	}
@@ -182,14 +148,43 @@ public class Matthew extends TextureActor {
 		 * reaches the top of the screen, so he generally wants to move
 		 * up, but if Nate is close and above him, he may move to the
 		 * side. */
-		 
-		int output = -1;
-		int r = getRow();
-		int c = getColumn();
+
+		// Get positions for Nate and Matthew
+
 		int[] natePosition = TextureActor.natePosition();
-		int nateRow = natePosition[0];
-		int nateColumn = natePosition[1];
+		int nr = natePosition[0]; // Nate row
+		int nc = natePosition[1]; // Nate column
+		int mr = getRow();        // Matthew row
+		int mc = getColumn();     // Matthew column
+		
+		// Determine which moves are possible
+		
 		boolean[] canMove = validMoves();
+		
+		// Determine which moves are a good idea
+		
+		int output = -1;		
+		if (distanceTo(nr,nc) < 4) {
+			
+			/* If Nate is close, try to avoid him. */
+			
+			output = fleeNate();
+			
+		} else {
+			
+			/* If Nate is not close, try to move up.  If it is not
+			 * possible to move up, try moving to the side. */
+			
+			if (canMove[UP]) {
+				output = UP;
+			} else {
+				canMove[DOWN] = false;
+				output = randomIndex(canMove);
+			}
+			
+		}
+		
+		/*
 		if (canMove[UP]) output = UP;
 		if (distanceTo(nateRow,nateColumn) < 4 && nateRow > getRow()) {
 			if (nateColumn < c && canMove[RIGHT]) {
@@ -202,13 +197,15 @@ public class Matthew extends TextureActor {
 				} else if (!canMove[LEFT] && canMove[RIGHT]) {
 					output = RIGHT;
 				} else if (canMove[LEFT] && canMove[RIGHT]) {
-					switch (rng.nextInt(2)) {
+					switch (randomInt(2)) {
 						case 0: output = LEFT;  break;
 						case 1: output = RIGHT; break;
 					}
 				}
 			}
 		}
+		*/
+		
 		return output;
 		
 	}
@@ -233,28 +230,7 @@ public class Matthew extends TextureActor {
 		
 		/* Choose one of those directions at random. */
 		
-		int output = -1;
-		int moves = 0;
-		for (int i = 0; i < farther.length; i++) {
-			if (farther[i]) moves++;
-		}
-		if (moves > 0) {
-			int random = rng.nextInt(moves);
-			int counter = 0;
-			for (int i = 0; i < farther.length; i++) {
-				if (farther[i]) {
-					if (counter == random) {
-						output = i;
-						break;
-					}
-					counter++;
-				}
-			}
-		}
-		
-		// Return output
-		
-		return output;
+		return randomIndex(farther);
 		
 	}
 	
@@ -287,35 +263,8 @@ public class Matthew extends TextureActor {
 		/* This method returns the index of a valid move or -1 if there
 		 * are no valid moves. */
 		
-		int output = -1;
-				
-		// Count the number of valid moves
-		
 		boolean[] canMove = validMoves();
-		int moves = 0;
-		for (int i = 0; i < canMove.length; i++) {
-			if (canMove[i]) moves++;
-		}
-		
-		// If there are valid moves, pick one at random
-		
-		if (moves > 0) {
-			int random = rng.nextInt(moves);
-			int counter = 0;
-			for (int i = 0; i < canMove.length; i++) {
-				if (canMove[i]) {
-					if (counter == random) {
-						output = i;
-						break;
-					}
-					counter++;
-				}
-			}			
-		}
-		
-		// Return the result
-		
-		return output;
+		return randomIndex(canMove);
 		
 	}
 
