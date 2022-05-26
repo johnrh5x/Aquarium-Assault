@@ -21,7 +21,7 @@ public class ScoreScreen extends ScreenAdapter implements Constants {
 		                                    "Electricity Cop",
 		                                    "Tobias Beckford"};
 		                                  
-	private static final int[] CUTOFFS = {1667,1333,1000,667,333,0};
+	private static final int[] CUTOFFS = {2500,2000,1500,1000,500,0};
 	
 	private AquariumAssault game;
 	private Stage           stage;

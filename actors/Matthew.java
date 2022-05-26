@@ -13,6 +13,7 @@ public class Matthew extends TextureActor {
 	
 	private static final boolean[] LATERAL_MASK  = {false, true, true, false};
 	private static final boolean[] VERTICAL_MASK = {true, false, false, true};
+	private static final int       THRESHOLD     = (GRID_ROWS - EXIT_ROW)/2;
 	
 	private float       elapsedTime;
 	private float       turnLength = 0.5f; // Two turns per second
@@ -45,7 +46,7 @@ public class Matthew extends TextureActor {
 			int index = -1;
 			if (escaping) {
 				index = escape();                     // Run for it
-			} else if (getRow() > GRID_ROWS/2) {
+			} else if (getRow() > THRESHOLD) {
 				index = chasePatron();                // If high up, incite a patron to tap the tank
 				if (index == -1) index = chaseFish(); // If there are no patrons to incite, go for the fish
 			} else {
@@ -92,9 +93,17 @@ public class Matthew extends TextureActor {
 		closer[RIGHT] = dx < 0 && canMove[RIGHT];
 		closer[UP]    = dy < 0 && canMove[UP];
 		
-		// Return a randomly-selected desirable move
+		// If Matthew can go down, go down; otherwise go left or right
 		
-		return randomIndex(closer);
+		if (closer[DOWN]) {
+			return DOWN;
+		} else if (closer[LEFT]) {
+			return LEFT;
+		} else if (closer[RIGHT]) {
+			return RIGHT;
+		} else {
+			return -1;
+		}
 		
 	}
 	
@@ -119,9 +128,16 @@ public class Matthew extends TextureActor {
 			closer[RIGHT] = dx < 0 && canMove[RIGHT];
 			closer[UP]    = dy < 0 && canMove[UP];
 			
-			/* Pick one of those moves at random. */
+			/* Pick a direction, with preference to left or right over
+			 * up. */
 
-			output = randomIndex(closer);
+			if (closer[LEFT]) {
+				output = LEFT;
+			} else if (closer[RIGHT]) {
+				output = RIGHT;
+			} else {
+				output = randomIndex(closer);
+			}
 			
 		}
 		return output;
@@ -183,28 +199,6 @@ public class Matthew extends TextureActor {
 			}
 			
 		}
-		
-		/*
-		if (canMove[UP]) output = UP;
-		if (distanceTo(nateRow,nateColumn) < 4 && nateRow > getRow()) {
-			if (nateColumn < c && canMove[RIGHT]) {
-				output = RIGHT;
-			} else if (nateColumn > c && canMove[LEFT]) {
-				output = LEFT;
-			} else if (nateColumn == c) {
-				if (canMove[LEFT] && !canMove[RIGHT]) {
-					output = LEFT;
-				} else if (!canMove[LEFT] && canMove[RIGHT]) {
-					output = RIGHT;
-				} else if (canMove[LEFT] && canMove[RIGHT]) {
-					switch (randomInt(2)) {
-						case 0: output = LEFT;  break;
-						case 1: output = RIGHT; break;
-					}
-				}
-			}
-		}
-		*/
 		
 		return output;
 		

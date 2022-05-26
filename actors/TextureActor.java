@@ -254,6 +254,8 @@ public class TextureActor extends Actor implements Constants {
 		
 	}
 
+	public float randomFloat() {return rng.nextFloat();}
+
 	public int randomInt(int bound) {return rng.nextInt(bound);}
 	
 	public void removeFromMap() {

@@ -30,14 +30,7 @@ public class TimeKeeper extends TextActor {
 		
 		super(font,shader,null);
 		this.time = time;
-		int minutes = (int)Math.floor(time/60);
-		int seconds = (int)Math.floor(time - minutes*60);
-		StringBuilder sb = new StringBuilder("Time: ");
-		sb.append(minutes);
-		sb.append(":");
-		if (seconds < 10) sb.append("0");
-		sb.append(seconds);
-		setText(sb.toString());
+		updateText();
 		countdown = true;
 		
 	}
@@ -52,14 +45,7 @@ public class TimeKeeper extends TextActor {
 		} else {
 			time += delta;
 		}
-		int minutes = (int)Math.floor(time/60);
-		int seconds = (int)Math.floor(time - minutes*60);
-		StringBuilder sb = new StringBuilder("Time: ");
-		sb.append(minutes);
-		sb.append(":");
-		if (seconds < 10) sb.append("0");
-		sb.append(seconds);
-		setText(sb.toString());
+		updateText();
 		
 	}
 
@@ -68,6 +54,23 @@ public class TimeKeeper extends TextActor {
 		boolean output = false;
 		if (countdown) output = time < 0f;
 		return output;
+		
+	}
+
+	private void updateText() {
+
+		if (time > 0) {
+			int minutes = (int)Math.floor(time/60);
+			int seconds = (int)Math.floor(time - minutes*60);
+			StringBuilder sb = new StringBuilder("Time: ");
+			sb.append(minutes);
+			sb.append(":");
+			if (seconds < 10) sb.append("0");
+			sb.append(seconds);
+			setText(sb.toString());
+		} else {
+			setText("Time: 0:00");
+		}
 		
 	}
 
