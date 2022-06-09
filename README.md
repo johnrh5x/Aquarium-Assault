@@ -1,15 +1,15 @@
 Hi!
 
-Aquarium Assault: Dark Day for a Dogfish is a simple, arcade-style game based on Rock Paper Shotgun's Electronic Wireless Show podcast.  You play as a humble aquarium attendant with a passion for the piscine.  Your job is to be a light unto the non-fish masses.  Greet them as they enter the aquarium, prevent them from tapping on the fishtank, and, above all, protect the dogfish from the vague but nefarious schemes of Mr. Basil Pesto.
+Aquarium Assault: Dark Day for a Dogfish is a simple, arcade-style game based on Rock Paper Shotgun's Electronic Wireless Show podcast.  You play as a humble aquarium attendant with a passion for the piscine, a light unto the non-fish masses.  Greet them as they enter the aquarium, prevent them from tapping on the fish tank, and, above all, protect the dogfish from the vague but nefarious schemes of Mr. Basil Pesto.
 
-Aquarium Assault is written in Java using the LibGDX game framework.  LibGDX is open-source software and uses the Apache 2.0 license.  The source files stored here represent only the code specific to this game and are not sufficient to compile the game yourself.  (This is just an online backup of my local Git repository.)  If you're interested in learning more about LibGDX, visit https://libGDX.com.
+Aquarium Assault was written in Java and uses the open-source LibGDX game framework.  The source files stored here represent only the code specific to this game and are not sufficient to compile the game yourself.  You can learn more about LibGDX at https://libGDX.com.
 
-This repository includes a playable, feature-complete build of the game.  The file desktop-1.0.jar is an executable jar file.  To play, download the file, make sure you have Java installed, and launch the game either from the command line by typing "java -jar desktop-1.0.jar" or by double- or right-clicking on the file in your file browser.  The ability to launch the game from your file browser may depend on your operating system, your preferred application settings, the permissions you have assigned to the file, and various other mysterious and inscrutable factors for which I cannot be held responsible.  The command line is the far more reliable alternative.
+There are two ways to get Aquarium Assault running on your computer.  If you've installed Java on your computer then all you need to do is download the file "aquariumassult.jar" and run it as you would any other executable jar file.  For those of you without Java, I have created install packages with native executables for Windows and Linux--"AA_Windows.zip" and "AA_Linux.tar.xz", respectively.  I do not have an install package for Macintosh at this time, so Macintosh users will regrettably have to use the first option.
 
-I am currently in the process of polishing the game and packaging it with a minimal JRE so that it does not require Java to be installed, but I can't say yet when that process will be complete.  If you have questions about the project or would like to provide feedback, I can be reached at juan_h@hotmail.com.
+If you have questions or would like to leave feedback on the game, you can e-mail me at juan_h@hotmai.com.
 
 Thanks for your time and interest!
 
-John Harris
+--John Harris
 
-March 11, 2022
+June 9, 2022
